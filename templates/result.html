@@ -2,32 +2,49 @@
 {% set active_step = 'result' %}
 {% set step_index = 4 %}
 
-{% block title %}ShieldAI &mdash; Result{% endblock %}
+{% block title %}ShieldAI &mdash; Risk Result{% endblock %}
 
 {% block content %}
 <div class="shield-card shield-card-result text-center">
   <div class="shield-card-header">
-    <h1>Results</h1>
-    <p class="shield-sub">Decrypted locally with your private key. This value was never visible to the company.</p>
+    <h1>Risk Assessment Result</h1>
+    <p class="shield-sub">Decrypted locally with your private key. This score was never visible to the lender.</p>
   </div>
   <div class="shield-card-body">
+    {% if band %}
+    <div class="shield-gauge-wrap">
+      <div class="shield-gauge" style="--gauge-pct: {{ gauge_pct }};">
+        <svg viewBox="0 0 120 68" class="shield-gauge-svg" aria-hidden="true">
+          <path class="shield-gauge-track" pathLength="100" d="M10 62 A50 50 0 0 1 110 62" />
+          <path class="shield-gauge-fill is-{{ band.level }}" pathLength="100" d="M10 62 A50 50 0 0 1 110 62" />
+        </svg>
+        <div class="shield-gauge-value">{{ final_result }}<span class="shield-gauge-unit">/100</span></div>
+      </div>
+      <span class="shield-risk-badge is-{{ band.level }}">{{ band.label }}</span>
+      <p class="shield-risk-detail">{{ band.detail }}</p>
+    </div>
+    {% else %}
+    <p class="shield-result-label">Risk score</p>
+    <h2 class="shield-result-value">{{ final_result }}</h2>
+    {% endif %}
+
     {% if encrypted_payload %}
     <div class="shield-reveal">
       <div class="shield-reveal-pane is-cipher">
-        <h5>What the company computed on</h5>
+        <h5>What the lender computed on</h5>
         <pre class="shield-key-block">{{ encrypted_payload }}</pre>
       </div>
       <div class="shield-reveal-pane is-plain">
         <h5>What only you can see</h5>
-        <p class="shield-reveal-plain">{{ final_result }}</p>
+        <p class="shield-reveal-plain">{{ final_result }}{% if band %} &middot; {{ band.label }}{% endif %}</p>
       </div>
     </div>
-    {% else %}
-    <p class="shield-result-label">The Predicted Salary is</p>
-    <h2 class="shield-result-value">{{ final_result }}</h2>
     {% endif %}
+
+    <p class="shield-disclaimer">Demo only &mdash; this score comes from a synthetic linear model, not a real underwriting decision.</p>
+
     <div class="text-center">
-      <a href="{{ url_for('home') }}" class="btn btn-primary mt-3 btn-sm">Predict Again</a>
+      <a href="{{ url_for('home') }}" class="btn btn-primary mt-3 btn-sm">Assess Again</a>
     </div>
   </div>
 </div>

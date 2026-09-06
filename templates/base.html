@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="UTF-8">
-  <title>{% block title %}ShieldAI &mdash; Privacy-Preserving Salary Prediction{% endblock %}</title>
+  <title>{% block title %}ShieldAI &mdash; Encrypted Loan Risk Assessment{% endblock %}</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <!-- Bootstrap 5 (grid + form utility classes only; visuals overridden below) -->
@@ -42,7 +42,7 @@
       </a>
       <ol class="shield-steps">
         <li class="{{ 'is-active' if active_step == 'home' else '' }}{{ ' is-done' if step_index and step_index > 1 }}">
-          <span class="step-num">1</span><span class="step-label">Predict</span>
+          <span class="step-num">1</span><span class="step-label">Assess</span>
         </li>
         <li class="{{ 'is-active' if active_step == 'customer' else '' }}{{ ' is-done' if step_index and step_index > 2 }}">
           <span class="step-num">2</span><span class="step-label">Encrypt</span>
@@ -61,7 +61,7 @@
     </main>
 
     <footer class="shield-footer">
-      <span>Homomorphic Encryption demo &middot; Paillier cryptosystem &middot; data never leaves this session unencrypted</span>
+      <span>Homomorphic Encryption demo &middot; Paillier cryptosystem &middot; synthetic risk model, not real underwriting &middot; data never leaves this session unencrypted</span>
     </footer>
   </div>
 

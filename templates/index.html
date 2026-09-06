@@ -2,41 +2,57 @@
 {% set active_step = 'home' %}
 {% set step_index = 1 %}
 
-{% block title %}ShieldAI &mdash; Predict Salary{% endblock %}
+{% block title %}ShieldAI &mdash; Encrypted Loan Risk Assessment{% endblock %}
 
 {% block content %}
 <div class="shield-card">
   <div class="shield-card-header">
-    <h1>Predict Salary Analysis</h1>
-    <p class="shield-sub">Enter your details below. Your answers are encrypted on your device before anything is sent onward &mdash; ShieldAI's model never sees the raw values.</p>
+    <h1>Encrypted Loan Risk Assessment</h1>
+    <p class="shield-sub">Enter the details a lender would normally ask for. Every value is encrypted on your device before anything is sent onward &mdash; the lender's model scores your risk without ever seeing your raw income, debt, or credit data.</p>
   </div>
   <div class="shield-card-body">
-    <form action="{{ url_for('customerEncryption')}}" method="post" id="salaryForm" novalidate>
+    <form action="{{ url_for('customerEncryption')}}" method="post" id="loanForm" novalidate>
       <div class="row justify-content-center">
         <div class="col-12">
           <div class="mb-3">
-            <label for="Age" class="form-label">Age</label>
-            <input type="number" class="form-control form-control-sm" name="Age" id="Age" placeholder="Enter your age (0-99)" min="0" max="99" required>
-            <p class="shield-error" id="Age-error">Enter an age between 0 and 99.</p>
+            <label for="AnnualIncome" class="form-label">
+              Annual Income ($)
+              <span class="shield-tip" tabindex="0" data-tip="Higher, steadier income generally lowers risk &mdash; it means more room to absorb a new payment.">?</span>
+            </label>
+            <input type="number" class="form-control form-control-sm" name="Annual Income" id="AnnualIncome" placeholder="e.g. 65000" min="0" max="2000000" required>
+            <p class="shield-error" id="AnnualIncome-error">Enter an income between 0 and 2,000,000.</p>
           </div>
           <div class="mb-3">
-            <label for="HealthyEating" class="form-label">Healthy Eating (1-10)</label>
-            <input type="number" class="form-control form-control-sm" name="Healthy Eating" id="HealthyEating" placeholder="On a scale of 1 to 10" min="1" max="10" required>
-            <p class="shield-error" id="HealthyEating-error">Enter a whole number between 1 and 10.</p>
+            <label for="ExistingDebt" class="form-label">
+              Existing Debt ($)
+              <span class="shield-tip" tabindex="0" data-tip="Total of what you already owe &mdash; more existing debt means less headroom for a new obligation.">?</span>
+            </label>
+            <input type="number" class="form-control form-control-sm" name="Existing Debt" id="ExistingDebt" placeholder="e.g. 12000" min="0" max="2000000" required>
+            <p class="shield-error" id="ExistingDebt-error">Enter a debt amount between 0 and 2,000,000.</p>
           </div>
           <div class="mb-3">
-            <label for="ActiveLifestyle" class="form-label">Active Lifestyle (1-10)</label>
-            <input type="number" class="form-control form-control-sm" name="Active lifestyle" id="ActiveLifestyle" placeholder="On a scale of 1 to 10" min="1" max="10" required>
-            <p class="shield-error" id="ActiveLifestyle-error">Enter a whole number between 1 and 10.</p>
+            <label for="CreditUtilization" class="form-label">
+              Credit Utilization (%)
+              <span class="shield-tip" tabindex="0" data-tip="The share of your available credit you're currently using. Running consistently high is a classic strain signal.">?</span>
+            </label>
+            <input type="number" class="form-control form-control-sm" name="Credit Utilization" id="CreditUtilization" placeholder="On a scale of 0 to 100" min="0" max="100" required>
+            <p class="shield-error" id="CreditUtilization-error">Enter a whole number between 0 and 100.</p>
           </div>
           <div class="mb-3">
-            <label for="Gender" class="form-label">Gender</label>
-            <select class="form-select form-select-sm" name="Gender" id="Gender" required>
-              <option value="" selected disabled>Select gender</option>
-              <option value="0">Male</option>
-              <option value="1">Female</option>
-            </select>
-            <p class="shield-error" id="Gender-error">Select a gender.</p>
+            <label for="EmploymentYears" class="form-label">
+              Employment Years
+              <span class="shield-tip" tabindex="0" data-tip="Years at your current job or line of work. Longer tenure reads as income stability.">?</span>
+            </label>
+            <input type="number" class="form-control form-control-sm" name="Employment Years" id="EmploymentYears" placeholder="e.g. 4" min="0" max="60" required>
+            <p class="shield-error" id="EmploymentYears-error">Enter a whole number between 0 and 60.</p>
+          </div>
+          <div class="mb-3">
+            <label for="RequestedLoanAmount" class="form-label">
+              Requested Loan Amount ($)
+              <span class="shield-tip" tabindex="0" data-tip="What you're asking to borrow. A larger ask relative to your income and existing debt raises risk.">?</span>
+            </label>
+            <input type="number" class="form-control form-control-sm" name="Requested Loan Amount" id="RequestedLoanAmount" placeholder="e.g. 20000" min="0" max="2000000" required>
+            <p class="shield-error" id="RequestedLoanAmount-error">Enter an amount between 0 and 2,000,000.</p>
           </div>
         </div>
       </div>
@@ -54,11 +70,13 @@
   // on the browser's native tooltip (or a server-side 400) to catch a bad
   // value. Every rule here mirrors the range the form fields advertise.
   (function () {
-    var form = document.getElementById('salaryForm');
+    var form = document.getElementById('loanForm');
     var rules = [
-      { id: 'Age', min: 0, max: 99, label: 'age' },
-      { id: 'HealthyEating', min: 1, max: 10, label: 'healthy eating score' },
-      { id: 'ActiveLifestyle', min: 1, max: 10, label: 'active lifestyle score' }
+      { id: 'AnnualIncome', min: 0, max: 2000000, label: 'annual income' },
+      { id: 'ExistingDebt', min: 0, max: 2000000, label: 'existing debt' },
+      { id: 'CreditUtilization', min: 0, max: 100, label: 'credit utilization' },
+      { id: 'EmploymentYears', min: 0, max: 60, label: 'employment years' },
+      { id: 'RequestedLoanAmount', min: 0, max: 2000000, label: 'requested loan amount' }
     ];
 
     function showError(id, show) {
@@ -80,23 +98,14 @@
       return valid;
     }
 
-    function validateGender() {
-      var field = document.getElementById('Gender');
-      var valid = field.value === '0' || field.value === '1';
-      showError('Gender', !valid);
-      return valid;
-    }
-
     rules.forEach(function (rule) {
       document.getElementById(rule.id).addEventListener('input', function () {
         validateNumberField(rule);
       });
     });
-    document.getElementById('Gender').addEventListener('change', validateGender);
 
     form.addEventListener('submit', function (event) {
       var validations = rules.map(validateNumberField);
-      validations.push(validateGender());
       var allValid = validations.every(Boolean);
       if (!allValid) {
         event.preventDefault();
