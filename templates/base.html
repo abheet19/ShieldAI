@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>{% block title %}ShieldAI &mdash; Privacy-Preserving Salary Prediction{% endblock %}</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Bootstrap 5 (grid + form utility classes only; visuals overridden below) -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Shared theme fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  {% block extra_head %}{% endblock %}
+</head>
+
+<body>
+  <div class="shield-shell">
+    <header class="shield-nav">
+      <a class="shield-brand" href="{{ url_for('home') }}">
+        <span class="shield-brand-mark">&#128274;</span>
+        <span class="shield-brand-text">ShieldAI</span>
+      </a>
+      <ol class="shield-steps">
+        <li class="{{ 'is-active' if active_step == 'home' else '' }}{{ ' is-done' if step_index and step_index > 1 }}">
+          <span class="step-num">1</span><span class="step-label">Predict</span>
+        </li>
+        <li class="{{ 'is-active' if active_step == 'customer' else '' }}{{ ' is-done' if step_index and step_index > 2 }}">
+          <span class="step-num">2</span><span class="step-label">Encrypt</span>
+        </li>
+        <li class="{{ 'is-active' if active_step == 'company' else '' }}{{ ' is-done' if step_index and step_index > 3 }}">
+          <span class="step-num">3</span><span class="step-label">Compute</span>
+        </li>
+        <li class="{{ 'is-active' if active_step == 'result' else '' }}">
+          <span class="step-num">4</span><span class="step-label">Reveal</span>
+        </li>
+      </ol>
+    </header>
+
+    <main class="shield-main">
+      {% block content %}{% endblock %}
+    </main>
+
+    <footer class="shield-footer">
+      <span>Homomorphic Encryption demo &middot; Paillier cryptosystem &middot; data never leaves this session unencrypted</span>
+    </footer>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  {% block extra_scripts %}{% endblock %}
+</body>
+
+</html>

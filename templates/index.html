@@ -1,74 +1,53 @@
-<!DOCTYPE html>
-<html>
+{% extends "base.html" %}
+{% set active_step = 'home' %}
+{% set step_index = 1 %}
 
-<head>
-  <meta charset="UTF-8">
-  <title>Homomorphic Encryption</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <!-- Bootstrap 5 CSS -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link href='https://fonts.googleapis.com/css?family=Pacifico' rel='stylesheet' type='text/css'>
-  <link href='https://fonts.googleapis.com/css?family=Arimo' rel='stylesheet' type='text/css'>
-  <link href='https://fonts.googleapis.com/css?family=Hind:300' rel='stylesheet' type='text/css'>
-  <link href='https://fonts.googleapis.com/css?family=Open+Sans+Condensed:300' rel='stylesheet' type='text/css'>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-</head>
+{% block title %}ShieldAI &mdash; Predict Salary{% endblock %}
 
-<body>
-  <div class="container mt-5">
-    <div class="card">
-      <div class="card-header text-center">
-        <h1>Predict Salary Analysis</h1>
-      </div>
-      <div class="card-body">
-        <!-- Main Input Form for collecting customer features -->
-        <form action="{{ url_for('customerEncryption')}}" method="post" id="salaryForm">
-          <div class="row justify-content-center">
-            <div class="col-12">
-              <!-- Age Input Field -->
-              <div class="mb-3">
-                <label for="Age" class="form-label">Age</label>
-                <input type="number" class="form-control form-control-sm" name="Age" id="Age" placeholder="Enter your Age (0-99)" max="99" required>
-              </div>
-              <!-- Healthy Eating Input Field -->
-              <div class="mb-3">
-                <label for="HealthyEating" class="form-label">Healthy Eating (1-10)</label>
-                <input type="number" class="form-control form-control-sm" name="Healthy Eating" id="HealthyEating" placeholder="Healthy Eating (On a scale of 1 to 10)" min="1" max="10" required>
-              </div>
-              <!-- Active Lifestyle Input Field -->
-              <div class="mb-3">
-                <label for="ActiveLifestyle" class="form-label">Active Lifestyle (1-10)</label>
-                <input type="number" class="form-control form-control-sm" name="Active lifestyle" id="ActiveLifestyle" placeholder="Active lifestyle (On a scale of 1 to 10)" min="1" max="10" required>
-              </div>
-              <!-- Gender Selection Field -->
-              <div class="mb-3">
-                <label for="Gender" class="form-label">Gender</label>
-                <select class="form-select form-select-sm" name="Gender" id="Gender" required>
-                  <option value="" selected disabled>Select Gender</option>
-                  <option value="0">Male</option>
-                  <option value="1">Female</option>
-                </select>
-              </div>
-            </div>
-          </div>
-          <div class="text-center">
-            <!-- Submit Button for the form -->
-            <button type="submit" class="btn btn-primary btn-sm">Predict</button>
-          </div>
-        </form>
-      </div>
-    </div>
+{% block content %}
+<div class="shield-card">
+  <div class="shield-card-header">
+    <h1>Predict Salary Analysis</h1>
+    <p class="shield-sub">Enter your details below. Your answers are encrypted on your device before anything is sent onward &mdash; ShieldAI's model never sees the raw values.</p>
   </div>
+  <div class="shield-card-body">
+    <form action="{{ url_for('customerEncryption')}}" method="post" id="salaryForm">
+      <div class="row justify-content-center">
+        <div class="col-12">
+          <div class="mb-3">
+            <label for="Age" class="form-label">Age</label>
+            <input type="number" class="form-control form-control-sm" name="Age" id="Age" placeholder="Enter your age (0-99)" max="99" required>
+          </div>
+          <div class="mb-3">
+            <label for="HealthyEating" class="form-label">Healthy Eating (1-10)</label>
+            <input type="number" class="form-control form-control-sm" name="Healthy Eating" id="HealthyEating" placeholder="On a scale of 1 to 10" min="1" max="10" required>
+          </div>
+          <div class="mb-3">
+            <label for="ActiveLifestyle" class="form-label">Active Lifestyle (1-10)</label>
+            <input type="number" class="form-control form-control-sm" name="Active lifestyle" id="ActiveLifestyle" placeholder="On a scale of 1 to 10" min="1" max="10" required>
+          </div>
+          <div class="mb-3">
+            <label for="Gender" class="form-label">Gender</label>
+            <select class="form-select form-select-sm" name="Gender" id="Gender" required>
+              <option value="" selected disabled>Select gender</option>
+              <option value="0">Male</option>
+              <option value="1">Female</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="text-center">
+        <button type="submit" class="btn btn-primary btn-sm">Encrypt &amp; Continue</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
 
-  <!-- Bootstrap 5 JS and dependencies -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-  <!-- Optional: Add custom JavaScript for form validation -->
-  <script>
-    document.getElementById('salaryForm').addEventListener('submit', function(event) {
-      // Example: Additional client-side validation can be added here
-      // For now, the HTML5 validation handles required fields and input types
-    });
-  </script>
-</body>
-
-</html>
+{% block extra_scripts %}
+<script>
+  document.getElementById('salaryForm').addEventListener('submit', function (event) {
+    // HTML5 validation handles required fields and input ranges.
+  });
+</script>
+{% endblock %}
