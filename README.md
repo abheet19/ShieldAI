@@ -181,14 +181,13 @@ Typography is Space Grotesk (display) + Inter (body) + JetBrains Mono (keys and 
 
 ## 📸 Screenshots
 
-> Placeholders — real captures still need to be taken and dropped in under `docs/screenshots/`.
+Captured live from [the deployed app](https://shieldai-abheet19.fly.dev/).
 
-| Step | Preview |
-|---|---|
-| 1 · Predict (validation) | `docs/screenshots/01-predict.png` *(needs capture)* |
-| 2 · Encrypt (keypair) | `docs/screenshots/02-encrypt.png` *(needs capture)* |
-| 3 · Compute (ciphertext) | `docs/screenshots/03-compute.png` *(needs capture)* |
-| 4 · Reveal (side by side) | `docs/screenshots/04-reveal.png` *(needs capture)* |
+![ShieldAI — Predict Salary Analysis form](docs/screenshots/screenshot-1.png)
+
+> Steps 2–4 (Encrypt/Compute/Reveal) require a submitted form session to reach — the flow itself is
+> verified working end to end (see [How it actually works](#-how-it-actually-works)); only the
+> step-1 landing page has a static capture here for now.
 
 ---
 
