@@ -32,15 +32,20 @@ def computeData():
     """
     # Load the encrypted customer data
     data = getData()
-    # Retrieve linear model coefficients
-    mycoef = LinModel().getCoef()
+    # Retrieve linear model coefficients and intercept
+    model = LinModel()
+    mycoef = model.getCoef()
+    myintercept = model.getIntercept()
     # Initialize the Paillier public key
     pk = data['public_key']
     pubkey = paillier.PaillierPublicKey(n=int(pk['n']))
     # Reconstruct encrypted numbers from stored ciphertext and exponent
     enc_nums_rec = [paillier.EncryptedNumber(pubkey, int(x[0]), int(x[1])) for x in data['values']]
-    # Compute the encrypted salary by summing the products of coefficients and encrypted features
-    results = sum([mycoef[i] * enc_nums_rec[i] for i in range(len(mycoef))])
+    # Compute the encrypted risk score: sum of (coefficient * encrypted feature),
+    # plus the model intercept. Adding a plaintext scalar to an encrypted number
+    # is still a purely additive homomorphic operation (no decryption occurs
+    # server-side) - the company never sees any of the underlying feature values.
+    results = sum([mycoef[i] * enc_nums_rec[i] for i in range(len(mycoef))]) + myintercept
     return results, pubkey
 
 def serializeDataCompany():
