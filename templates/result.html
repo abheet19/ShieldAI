@@ -11,8 +11,21 @@
     <p class="shield-sub">Decrypted locally with your private key. This value was never visible to the company.</p>
   </div>
   <div class="shield-card-body">
+    {% if encrypted_payload %}
+    <div class="shield-reveal">
+      <div class="shield-reveal-pane is-cipher">
+        <h5>What the company computed on</h5>
+        <pre class="shield-key-block">{{ encrypted_payload }}</pre>
+      </div>
+      <div class="shield-reveal-pane is-plain">
+        <h5>What only you can see</h5>
+        <p class="shield-reveal-plain">{{ final_result }}</p>
+      </div>
+    </div>
+    {% else %}
     <p class="shield-result-label">The Predicted Salary is</p>
     <h2 class="shield-result-value">{{ final_result }}</h2>
+    {% endif %}
     <div class="text-center">
       <a href="{{ url_for('home') }}" class="btn btn-primary mt-3 btn-sm">Predict Again</a>
     </div>

@@ -1,135 +1,219 @@
-# ShieldAI: Privacy-Preserving Machine Learning with Homomorphic Encryption
+<div align="center">
 
-**[➡️ Live Demo Link](https://private-user-images.githubusercontent.com/60404707/486456602-de17bc96-3278-46b3-94a6-780bd36bea53.png?jwt=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3NTcxODc3NDcsIm5iZiI6MTc1NzE4NzQ0NywicGF0aCI6Ii82MDQwNDcwNy80ODY0NTY2MDItZGUxN2JjOTYtMzI3OC00NmIzLTk0YTYtNzgwYmQzNmJlYTUzLnBuZz9YLUFtei1BbGdvcml0aG09QVdTNC1ITUFDLVNIQTI1NiZYLUFtei1DcmVkZW50aWFsPUFLSUFWQ09EWUxTQTUzUFFLNFpBJTJGMjAyNTA5MDYlMkZ1cy1lYXN0LTElMkZzMyUyRmF3czRfcmVxdWVzdCZYLUFtei1EYXRlPTIwMjUwOTA2VDE5MzcyN1omWC1BbXotRXhwaXJlcz0zMDAmWC1BbXotU2lnbmF0dXJlPTVkOWJhOTc1M2RiMjQzOTc0YjBkNWE5OGUzZDU0NjI5YzQ3MmFlOTY1NGNlMTc0NDg0NWQ1NWJlZjMwOWI1NzkmWC1BbXotU2lnbmVkSGVhZGVycz1ob3N0In0.d_mARPbtyo9Kvjm-NgBlN4gksMANIFuLfkArJ2-SZzY)**
+<br>
 
-ShieldAI is a web-based system that demonstrates privacy-preserving machine learning. It performs ML inference (Classification and Regression) on encrypted data using Partial Homomorphic Encryption (PHE). This allows for data analysis without ever exposing the raw, confidential data, ensuring the highest level of security and compliance.
+# 🛡️ &nbsp;S H I E L D A I
+
+### **Compute on it. Never see it.**
+
+A salary predictor where the company's model never once touches a raw number —<br>
+every value it computes on is homomorphically encrypted, start to finish.
+
+<br>
+
+![Python](https://img.shields.io/badge/Python-3.13-3776ab?logo=python&logoColor=white)
+![Flask](https://img.shields.io/badge/Flask-backend-000000?logo=flask&logoColor=white)
+![Paillier](https://img.shields.io/badge/Paillier-partial_HE-2557b0)
+![scikit--learn](https://img.shields.io/badge/scikit--learn-linear_regression-f7931e?logo=scikitlearn&logoColor=white)
+![Status](https://img.shields.io/badge/status-personal_project_·_demo-8a94a6)
+
+<br>
+
+<sub>A personal project by <b><a href="https://github.com/abheet19">Abheet</a></b> — a small, honest demo of partial homomorphic encryption applied to ML inference. Not production-hardened; see <a href="#-what-it-doesnt-do-yet">what it doesn't do yet</a>.</sub>
+
+<br>
+
+</div>
+
+> [!NOTE]
+> **No live deployment yet.** The Dockerfile and Cloud Run pipeline below are real and tested locally,
+> but there's no hosted instance right now — that needs a backend hosting account I haven't set up.
+> Run it locally with the steps in [Install & run](#-install--run); there is no live link to give you.
+
+<div align="center">
+
+`Predict` &nbsp;→&nbsp; `Encrypt` &nbsp;→&nbsp; `Compute` &nbsp;→&nbsp; `Reveal`
+
+</div>
 
 ---
 
-### Screenshot
-![ShieldAI](https://private-user-images.githubusercontent.com/60404707/486255816-16c5e422-85de-44f5-9389-88a9e61d906c.png?jwt=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3NTcxMDA0NjMsIm5iZiI6MTc1NzEwMDE2MywicGF0aCI6Ii82MDQwNDcwNy80ODYyNTU4MTYtMTZjNWU0MjItODVkZS00NGY1LTkzODktODhhOWU2MWQ5MDZjLnBuZz9YLUFtei1BbGdvcml0aG09QVdTNC1ITUFDLVNIQTI1NiZYLUFtei1DcmVkZW50aWFsPUFLSUFWQ09EWUxTQTUzUFFLNFpBJTJGMjAyNTA5MDUlMkZ1cy1lYXN0LTElMkZzMyUyRmF3czRfcmVxdWVzdCZYLUFtei1EYXRlPTIwMjUwOTA1VDE5MjI0M1omWC1BbXotRXhwaXJlcz0zMDAmWC1BbXotU2lnbmF0dXJlPWY0MzYxNzljZmM0NThlNGVhYmYyNWQyMDU1MDc3ZjQ4ZDcyN2RlYWE4MDlmNjBmZjIyM2ViZjE2ZGFkMTliZjkmWC1BbXotU2lnbmVkSGVhZGVycz1ob3N0In0.vo_XRrPfGkNH0nCkSn5Pe9hgMim2OFrui4Yvbf_HZWY)
+<details open>
+<summary><b>Contents</b></summary>
+
+- [The problem](#the-problem)
+- [How it actually works](#-how-it-actually-works)
+- [Tech stack](#-tech-stack)
+- [Install & run](#-install--run)
+- [Design](#-design)
+- [Screenshots](#-screenshots)
+- [What it doesn't do yet](#-what-it-doesnt-do-yet)
+
+</details>
 
 ---
 
-### The Problem It Solves
-Industries like finance, healthcare, and insurance need to analyze highly sensitive customer data to build predictive models. However, privacy regulations (like GDPR and HIPAA) and the risk of data breaches make it dangerous to process this data in its raw form. ShieldAI provides a solution by allowing ML models to make predictions on data while it remains fully encrypted.
+## The problem
+
+Finance, healthcare, and insurance all want to run predictive models over sensitive data — but
+sending that data anywhere in the clear is a compliance problem and a breach waiting to happen.
+The usual answer is "we promise not to look." ShieldAI is a small proof that you don't have to
+take that promise on faith: the company's model can compute a real prediction **while every
+value it touches stays encrypted**, because Paillier encryption lets you add ciphertexts and
+scale them by a plaintext constant, and the result decrypts to exactly what you'd get from doing
+the arithmetic on the plaintext.
+
+A linear regression model is just weighted sums — which is exactly the arithmetic Paillier
+supports. That's the whole trick.
 
 ---
 
-### Key Features
-- **Secure ML Inference:** Implements the Paillier cryptosystem, a form of Partial Homomorphic Encryption, which allows for mathematical operations (like addition and multiplication by a constant) to be performed on encrypted data.
-- **Privacy-Preserving Pipeline:** Developed a complete, secure pipeline where a user can submit encrypted data and receive an encrypted prediction, which only they can decrypt.
-- **Classification & Regression:** Supports both major types of supervised learning tasks, demonstrating broad applicability for various business use cases.
-- **Cloud-Native Deployment:** Fully containerized with Docker and deployed on Google Cloud Run, showcasing a secure and scalable cloud architecture.
-- **Automated CI/CD:** Features a robust CI/CD pipeline using GitHub Actions to automate the build and deployment process, enhancing reliability and security.
+## 🔍 How it actually works
 
----
+```mermaid
+sequenceDiagram
+    participant U as You (browser)
+    participant C as cust.py<br/>(your keys)
+    participant S as servercalc.py<br/>(the "company")
 
-### Tech Stack
-
-| Category              | Technologies                                                                          |
-| --------------------- | ------------------------------------------------------------------------------------- |
-| **ML & Security** | Python, Scikit-learn, Paillier Homomorphic Encryption Library, Pandas                 |
-| **Backend** | Flask, JavaScript                                                                     |
-| **Frontend** | Bootstrap, HTML/CSS                                                                   |
-| **Cloud & DevOps** | Google Cloud Run, Google Container Registry, Docker, CI/CD with GitHub Actions, IaC   |
-
----
-
-# Homomorphic Encryption
-Homomorphic encryption is a form of encryption that permits users to perform computations on its encrypted data without first decrypting it. These resulting computations are left in an encrypted form which, when decrypted, result in an identical output to that produced had the operations been performed on the unencrypted data. Homomorphic encryption can be used for privacy-preserving outsourced storage and computation. This allows data to be encrypted and out-sourced to commercial cloud environments for processing, all while encrypted.
-
-## A certain example to show usage of HE
-
-Suppose there is a company **XYZ** which provides Machine learning services through encrypted means to user **ABC** which uses certain parameters to predict his salary through the company's portal such as `age` ,`healthy eating scale` , `active worklife scale` and `gender`. First of all we will use the 
-```bash
-storeKeys() and getKeys() methods
-```  
-to generate and load the public and private keys on the client side. After that the client's data will be encrypted using the
-```bash
-serializeDataCustomer() method
-```  
-Now company will load and compute on the data using their **Linear Regression** model using these methods
-```bash
-getData() and computeData()
-```  
-This is the power of HE , as the company now predicts the customer's salary without actually knowing the values  (as it is encrypted by the client's side ) using complex cryptographic operations .
-Finally company sends the response back to user as json file which contains the encrypted result and public key using the method
-```bash
-serializeDataCompany()
-``` 
-![Architecture](./architecture.png)
-
-### How to Run Locally
-
-1. **Clone the Repository**
-   
-   ```bash
-   git clone https://github.com/yourusername/Partial-Homomorphic-Encryption-on-Machine-learning.git
-   cd Partial-Homomorphic-Encryption-on-Machine-learning
-   ```
-
-2. **Set Up a Conda Environment**
-   
-   ```bash
-   conda create -n phe_ml_env python=3.8
-   conda activate phe_ml_env
-   ```
-
-3. **Install Dependencies**
-   
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-4. **Train the Machine Learning Model**
-   
-   Before running the application, train the model to generate the `improved_model.pkl` file.
-   
-   ```bash
-   python train.py
-   ```
-
-5. **Generate Encryption Keys**
-   
-   ```python
-   # ...existing code...
-   python cust.py
-   ```
-
-6. **Start the Flask Application**
-   
-   ```bash
-   python app.py
-   ```
-
-7. **Access the Application**
-   
-   Open your web browser and navigate to `http://localhost:8080/` to interact with the application.
-
-## Usage
-
-The main `app.py` (Flask file) contains the code for implementing all the above functions
-```bash
-@app.route('/customerEncryption', methods=['GET','POST']) 
-def customerEncryption():    # Handles the encryption on client side
-
-@app.route('/company', methods=['GET','POST'])
-def company():               # Handles the encryption on company side
-
-@app.route('/result', methods=['GET','POST'])
-def result():                # Generates the final output on the client side
+    U->>C: age, health score, activity score, gender
+    C->>C: generate Paillier keypair (public + private)
+    C->>C: encrypt each value with the public key
+    C->>S: encrypted values + public key only
+    Note over S: linmodel.py's regression coefficients<br/>are plaintext — that part is public
+    S->>S: encrypted_salary = Σ (coefficient × encrypted_value)
+    Note over S: every operand on the right is still ciphertext;<br/>S never reconstructs a plaintext feature
+    S->>U: encrypted_salary + public key
+    U->>U: decrypt with the private key that never left this session
 ```
 
-## Final Thoughts
-* This is a high-level glimpse into the future of ML and cryptography but not yet production-ready.
-* Partial Homomorphic Encryption is a great way to perform complex ML computations on encrypted samples.
-* Evolving space with Fully-Homomorphic Encryption which is in research right now.
-* This will likely be in demand in the next 5-7 years.
+Four moving pieces, one per step in the nav bar:
 
-## Contributing
-Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
-Thanks for reading this and if you like this content please give a **LIKE** to this repository.
+1. **`cust.py` — keys and encryption.** `storeKeys()` generates a fresh Paillier keypair
+   (`generate_paillier_keypair()`) and writes it to `custkeys.json`. `serializeDataCustomer()`
+   encrypts each feature (age, healthy-eating score, active-lifestyle score, gender) individually
+   with the public key — four separate ciphertexts, not one blob.
+2. **`linmodel.py` — the model.** A plain `scikit-learn` `LinearRegression` trained on
+   `employee_data.csv`. Its coefficients are ordinary floats; they are the *only* thing about the
+   model that's public, and floats aren't sensitive the way a customer's raw inputs are.
+3. **`servercalc.py` — the computation.** `computeData()` reconstructs the four `EncryptedNumber`
+   objects from what the client sent and computes
+   `sum(coefficient[i] * encrypted_feature[i] for i in range(4))`. Paillier's homomorphic
+   properties make `plaintext × ciphertext` and `ciphertext + ciphertext` both valid operations
+   that stay encrypted — so this line runs real modular exponentiation on numbers the server can
+   never read, and the accumulated result is still one ciphertext.
+4. **`app.py`'s `/result` route — the reveal.** The encrypted salary comes back to the browser
+   along with the public key it was encrypted under. Only the private key — generated in step 1
+   and never sent anywhere — can turn that ciphertext into the number `21767.82`. The result page
+   now shows both side by side: the ciphertext blob the server computed on, and the plaintext only
+   you can see, so the claim is something you can look at rather than just read.
 
-## License
-[MIT](https://choosealicense.com/licenses/mit/)
+The one place this demo cuts a corner on purpose: `custkeys.json`, `data.json`, and `answer.json`
+are server-side files, not session-scoped, so it's a single-user demo, not a multi-tenant service.
+That's a demo simplification, not a claim about the crypto.
+
+---
+
+## 🛠 Tech stack
+
+| Layer | Technology | Role |
+|---|---|---|
+| **Encryption** | [`phe`](https://github.com/data61/python-paillier) | Paillier partial homomorphic encryption — keygen, encrypt, homomorphic add/scale |
+| **ML** | scikit-learn | `LinearRegression` trained on `employee_data.csv` |
+| **Data handling** | numpy, pandas | Feature/target prep for training |
+| **Backend** | Flask | Routes for each step of the pipeline; Jinja2 templates |
+| **Frontend** | Bootstrap 5 (grid/forms) + hand-written CSS | Steel-blue glass UI, no JS framework |
+| **Server** | Gunicorn | WSGI server for the Docker image |
+| **Deploy config** | Docker, Cloud Build, GitHub Actions | Present and tested locally; not currently deployed |
+
+---
+
+## 🚀 Install & run
+
+The pinned `requirements.txt` (`cryptography==2.8`, Flask 1.1.1, etc.) targets Python 3.8 and
+doesn't build on current Python — `cryptography==2.8` has no wheel for modern CPython and no
+working sdist build under current toolchains. Nothing in this app imports `cryptography` directly,
+so the fix is to install current, unpinned versions of what's actually used:
+
+```powershell
+git clone https://github.com/abheet19/ShieldAI.git
+cd ShieldAI
+
+pip install flask gunicorn phe numpy pandas scikit-learn
+
+python app.py
+```
+
+Open `http://localhost:8080` (or whatever port you see in the console — `8080` is sometimes taken
+by something else on Windows, in which case pass a different port to `app.run()`).
+
+<details>
+<summary><b>Retraining the model</b></summary>
+
+<br>
+
+```powershell
+python train.py
+```
+
+Regenerates the linear regression coefficients from `employee_data.csv`. The live prediction path
+(`servercalc.py`) trains fresh from the CSV on each request rather than loading a pickle, so this
+step is optional unless you've changed the training data.
+
+</details>
+
+---
+
+## 🎨 Design
+
+Dark ground (`#0A0D12`) with glass-morphism cards, matching the visual family of my other
+side projects but with its own palette: a steel-blue gradient family —
+`#7CA6F7` → `#4F8EF7` → `#2557B0` — rather than the violet/copper/emerald/rose accents used
+elsewhere. The brand mark is a hexagonal shield plate built in the same three-depth-plane
+construction (cast / flank / face) as those other marks, which is a deliberate nod to what the
+product actually is: privacy as a shield around your data. That same beveled-edge motif reappears
+as a thin top facet on every card, rather than drawing a literal shield on each one.
+
+Typography is Space Grotesk (display) + Inter (body) + JetBrains Mono (keys and ciphertext blocks)
+— monospace specifically so a 300-digit ciphertext doesn't visually apologize for its size.
+
+---
+
+## 📸 Screenshots
+
+> Placeholders — real captures still need to be taken and dropped in under `docs/screenshots/`.
+
+| Step | Preview |
+|---|---|
+| 1 · Predict (validation) | `docs/screenshots/01-predict.png` *(needs capture)* |
+| 2 · Encrypt (keypair) | `docs/screenshots/02-encrypt.png` *(needs capture)* |
+| 3 · Compute (ciphertext) | `docs/screenshots/03-compute.png` *(needs capture)* |
+| 4 · Reveal (side by side) | `docs/screenshots/04-reveal.png` *(needs capture)* |
+
+---
+
+## 🚧 What it doesn't do yet
+
+- **Single-user only.** Keys and intermediate payloads are process-wide files
+  (`custkeys.json`, `data.json`, `answer.json`), not per-session state — two people using the app
+  at once would collide.
+- **No live deployment.** The Dockerfile and Cloud Build config work; there's no hosted instance
+  because that needs a backend hosting account I haven't set up.
+- **Regression only.** The README this replaced also claimed classification support; the code in
+  this repo only implements linear regression, so that claim is dropped here rather than repeated.
+- **No transport encryption.** This is a local demo over plain HTTP — real deployment would need
+  TLS in front of it, which is a hosting concern, not a crypto one.
+
+---
+
+<div align="center">
+
+<br>
+
+Built by **[Abheet Singh Isher](https://github.com/abheet19)**
+
+*Privacy shouldn't be a promise. It should be math.*
+
+<br>
+
+</div>

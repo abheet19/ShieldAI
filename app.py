@@ -1,12 +1,10 @@
 """Flask application for Homomorphic Encryption-based Salary Prediction."""
 
-import numpy as np
-from flask import Flask, request, jsonify, render_template, redirect, url_for
+from flask import Flask, request, render_template
 import json
-import os
+from os import path
 from cust import *
 from servercalc import *
-from os import path
 
 app = Flask(__name__)
 
@@ -72,9 +70,6 @@ def company():
         
     # Render the company details page with encrypted data
     return render_template('company.html', datafileCompany=datafileCompany)
-   
-    # Optionally redirect to the result page
-    # return redirect(url_for('result'))
 
 @app.route('/result', methods=['GET', 'POST'])
 def result():
@@ -107,9 +102,20 @@ def result():
         final_result = round(final_result, 2)  # Rounded to 2 decimals
     else:
         final_result = "Keys do not match."
-    
-    # Render the result page with the final predicted salary
-    return render_template('result.html', final_result=final_result)
+
+    # Render the result page with both the encrypted payload the company
+    # computed on and the final plaintext salary, so the "computed without
+    # seeing plaintext" claim is visible side by side, not just asserted.
+    encrypted_payload = {
+        'public_key': answer_file['pubkey'],
+        'ciphertext': ciphertext_str,
+        'exponent': exponent,
+    }
+    return render_template(
+        'result.html',
+        final_result=final_result,
+        encrypted_payload=encrypted_payload,
+    )
 
 if __name__ == "__main__":
     app.run(debug=False, host='0.0.0.0', port=8080)

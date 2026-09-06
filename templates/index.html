@@ -11,20 +11,23 @@
     <p class="shield-sub">Enter your details below. Your answers are encrypted on your device before anything is sent onward &mdash; ShieldAI's model never sees the raw values.</p>
   </div>
   <div class="shield-card-body">
-    <form action="{{ url_for('customerEncryption')}}" method="post" id="salaryForm">
+    <form action="{{ url_for('customerEncryption')}}" method="post" id="salaryForm" novalidate>
       <div class="row justify-content-center">
         <div class="col-12">
           <div class="mb-3">
             <label for="Age" class="form-label">Age</label>
-            <input type="number" class="form-control form-control-sm" name="Age" id="Age" placeholder="Enter your age (0-99)" max="99" required>
+            <input type="number" class="form-control form-control-sm" name="Age" id="Age" placeholder="Enter your age (0-99)" min="0" max="99" required>
+            <p class="shield-error" id="Age-error">Enter an age between 0 and 99.</p>
           </div>
           <div class="mb-3">
             <label for="HealthyEating" class="form-label">Healthy Eating (1-10)</label>
             <input type="number" class="form-control form-control-sm" name="Healthy Eating" id="HealthyEating" placeholder="On a scale of 1 to 10" min="1" max="10" required>
+            <p class="shield-error" id="HealthyEating-error">Enter a whole number between 1 and 10.</p>
           </div>
           <div class="mb-3">
             <label for="ActiveLifestyle" class="form-label">Active Lifestyle (1-10)</label>
             <input type="number" class="form-control form-control-sm" name="Active lifestyle" id="ActiveLifestyle" placeholder="On a scale of 1 to 10" min="1" max="10" required>
+            <p class="shield-error" id="ActiveLifestyle-error">Enter a whole number between 1 and 10.</p>
           </div>
           <div class="mb-3">
             <label for="Gender" class="form-label">Gender</label>
@@ -33,6 +36,7 @@
               <option value="0">Male</option>
               <option value="1">Female</option>
             </select>
+            <p class="shield-error" id="Gender-error">Select a gender.</p>
           </div>
         </div>
       </div>
@@ -46,8 +50,60 @@
 
 {% block extra_scripts %}
 <script>
-  document.getElementById('salaryForm').addEventListener('submit', function (event) {
-    // HTML5 validation handles required fields and input ranges.
-  });
+  // Real client-side validation with inline messages, in place of relying
+  // on the browser's native tooltip (or a server-side 400) to catch a bad
+  // value. Every rule here mirrors the range the form fields advertise.
+  (function () {
+    var form = document.getElementById('salaryForm');
+    var rules = [
+      { id: 'Age', min: 0, max: 99, label: 'age' },
+      { id: 'HealthyEating', min: 1, max: 10, label: 'healthy eating score' },
+      { id: 'ActiveLifestyle', min: 1, max: 10, label: 'active lifestyle score' }
+    ];
+
+    function showError(id, show) {
+      var field = document.getElementById(id);
+      var error = document.getElementById(id + '-error');
+      if (!field || !error) return;
+      field.classList.toggle('is-invalid', show);
+      error.classList.toggle('is-shown', show);
+    }
+
+    function validateNumberField(rule) {
+      var field = document.getElementById(rule.id);
+      var raw = field.value.trim();
+      var valid = raw !== '' &&
+        /^-?\d+$/.test(raw) &&
+        Number(raw) >= rule.min &&
+        Number(raw) <= rule.max;
+      showError(rule.id, !valid);
+      return valid;
+    }
+
+    function validateGender() {
+      var field = document.getElementById('Gender');
+      var valid = field.value === '0' || field.value === '1';
+      showError('Gender', !valid);
+      return valid;
+    }
+
+    rules.forEach(function (rule) {
+      document.getElementById(rule.id).addEventListener('input', function () {
+        validateNumberField(rule);
+      });
+    });
+    document.getElementById('Gender').addEventListener('change', validateGender);
+
+    form.addEventListener('submit', function (event) {
+      var validations = rules.map(validateNumberField);
+      validations.push(validateGender());
+      var allValid = validations.every(Boolean);
+      if (!allValid) {
+        event.preventDefault();
+        var firstInvalid = form.querySelector('.is-invalid');
+        if (firstInvalid) firstInvalid.focus();
+      }
+    });
+  })();
 </script>
 {% endblock %}

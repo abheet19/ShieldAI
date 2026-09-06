@@ -1,19 +1,30 @@
 /* ==========================================================================
-   ShieldAI theme
-   Palette/tokens follow the shared abheet19 side-project theme: dark
-   background, glass-morphism cards, cyan/blue accent gradient buttons,
+   ShieldAI theme — steel blue
+
+   Palette is ShieldAI's own, a sibling of the Weft (teal/indigo) and Vantage
+   (gold/ochre) side-project marks rather than a shared generic cyan. Ground
+   is near-black steel (#0A0D12); the accent runs light-to-dark through one
+   blue family — #7CA6F7 (highlight) -> #4F8EF7 (mid) -> #2557B0 (shade) — so
+   a single gradient reads as metal catching light, not a rainbow.
+
+   The product is "privacy = a shield around your data," so the shield motif
+   (see .shield-mark below) is load-bearing, not decorative: a hexagonal
+   plate in three depth planes (cast / flank / face), the same construction
+   language as the Weft and Vantage brand marks, just in steel blue.
+
    Space Grotesk (display) + Inter (body) + JetBrains Mono (keys/pre).
    ========================================================================== */
 
 :root {
-  --bg: #0b0d12;
-  --bg-elevated: #11141c;
-  --glass: rgba(255, 255, 255, 0.04);
-  --glass-border: rgba(255, 255, 255, 0.08);
-  --text: #e8eaf0;
-  --text-dim: #9aa1b2;
-  --accent: #61dafb;
-  --accent-2: #3178c6;
+  --bg: #0a0d12;
+  --bg-elevated: #10141c;
+  --glass: rgba(124, 166, 247, 0.05);
+  --glass-border: rgba(124, 166, 247, 0.14);
+  --text: #e7edf7;
+  --text-dim: #94a3ba;
+  --accent: #7ca6f7;
+  --accent-2: #2557b0;
+  --accent-mid: #4f8ef7;
   --success: #4ade80;
   --danger: #f87171;
   --radius: 14px;
@@ -34,8 +45,8 @@ body {
 body {
   margin: 0;
   min-height: 100vh;
-  background: radial-gradient(1200px 600px at 20% -10%, #16233a33, transparent),
-              radial-gradient(1000px 500px at 90% 10%, #1a2a1a22, transparent),
+  background: radial-gradient(1200px 600px at 20% -10%, #16264a33, transparent),
+              radial-gradient(1000px 500px at 90% 10%, #0f2a4a22, transparent),
               var(--bg);
   color: var(--text);
   font-family: var(--font-body);
@@ -87,8 +98,15 @@ a {
   color: var(--accent);
 }
 
-.shield-brand-mark {
-  font-size: 1.1rem;
+.shield-mark {
+  display: inline-flex;
+  width: 22px;
+  height: 22px;
+  flex: none;
+}
+
+.shield-mark .plate {
+  fill: url(#shieldFace);
 }
 
 .shield-steps {
@@ -131,7 +149,7 @@ a {
 }
 
 .shield-steps li.is-active .step-num {
-  background: linear-gradient(135deg, var(--accent-2), var(--accent));
+  background: linear-gradient(135deg, var(--accent-2), var(--accent-mid), var(--accent));
   color: #061018;
   border-color: transparent;
 }
@@ -168,6 +186,7 @@ a {
    ------------------------------------------------------------------------- */
 
 .shield-card {
+  position: relative;
   width: 100%;
   max-width: 560px;
   background: var(--glass);
@@ -177,6 +196,17 @@ a {
   -webkit-backdrop-filter: blur(16px) saturate(140%);
   box-shadow: 0 24px 60px -24px rgba(0, 0, 0, 0.55);
   overflow: hidden;
+}
+
+/* The shield motif's "flank" plane: a beveled top facet in the accent
+   gradient, echoing the brand mark's edge-catches-light construction
+   without drawing a literal shield on every card. */
+.shield-card::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--accent-2), var(--accent-mid), var(--accent));
 }
 
 .shield-card-header {
@@ -241,7 +271,25 @@ a {
   background: var(--bg-elevated);
   color: var(--text);
   border-color: var(--accent);
-  box-shadow: 0 0 0 0.2rem rgba(97, 218, 251, 0.2);
+  box-shadow: 0 0 0 0.2rem rgba(124, 166, 247, 0.2);
+}
+
+.form-control.is-invalid,
+.form-select.is-invalid {
+  border-color: var(--danger);
+  box-shadow: 0 0 0 0.2rem rgba(248, 113, 113, 0.15);
+}
+
+.shield-error {
+  display: none;
+  color: var(--danger);
+  font-size: 0.78rem;
+  margin: 6px 0 0;
+  font-family: var(--font-body);
+}
+
+.shield-error.is-shown {
+  display: block;
 }
 
 .form-control::placeholder {
@@ -314,7 +362,7 @@ a {
    ------------------------------------------------------------------------- */
 
 .btn-primary {
-  background: linear-gradient(135deg, var(--accent-2), var(--accent));
+  background: linear-gradient(135deg, var(--accent-2), var(--accent-mid), var(--accent));
   border: none;
   color: #061018;
   font-weight: 600;
@@ -325,13 +373,105 @@ a {
 .btn-primary:hover,
 .btn-primary:focus,
 .btn-primary:active {
-  background: linear-gradient(135deg, var(--accent-2), var(--accent));
+  background: linear-gradient(135deg, var(--accent-2), var(--accent-mid), var(--accent));
   color: #061018;
   transform: translateY(-1px);
   box-shadow: 0 8px 24px -8px var(--accent-2);
 }
 
+.btn-primary:disabled,
+.btn-primary.is-loading {
+  opacity: 0.75;
+  cursor: progress;
+  transform: none;
+}
+
 .btn-sm {
   padding: 8px 22px;
   font-size: 0.85rem;
+}
+
+/* -------------------------------------------------------------------------
+   Loading state — the encrypt/compute/decrypt round trip runs real modular
+   exponentiation server-side and can take a visible moment, so every form
+   that crosses that boundary gets a spinner instead of a frozen button.
+   ------------------------------------------------------------------------- */
+
+.shield-spinner {
+  display: none;
+  width: 14px;
+  height: 14px;
+  margin-right: 8px;
+  border-radius: 50%;
+  border: 2px solid rgba(6, 16, 24, 0.35);
+  border-top-color: #061018;
+  animation: shield-spin 0.7s linear infinite;
+  vertical-align: -2px;
+}
+
+.is-loading .shield-spinner {
+  display: inline-block;
+}
+
+@keyframes shield-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* -------------------------------------------------------------------------
+   Result reveal — ciphertext vs. plaintext side by side
+   ------------------------------------------------------------------------- */
+
+.shield-reveal {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  text-align: left;
+  margin: 8px 0 24px;
+}
+
+@media (max-width: 560px) {
+  .shield-reveal {
+    grid-template-columns: 1fr;
+  }
+}
+
+.shield-reveal-pane {
+  background: var(--bg-elevated);
+  border: 1px solid var(--glass-border);
+  border-radius: 10px;
+  padding: 14px 16px;
+}
+
+.shield-reveal-pane h5 {
+  font-family: var(--font-display);
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin: 0 0 10px;
+}
+
+.shield-reveal-pane.is-cipher h5::before {
+  content: "\1F512\FE0E  ";
+}
+
+.shield-reveal-pane.is-plain h5::before {
+  content: "\2713\FE0E  ";
+  color: var(--success);
+}
+
+.shield-reveal-pane .shield-key-block {
+  margin-bottom: 0;
+  max-height: 160px;
+}
+
+.shield-reveal-plain {
+  font-family: var(--font-mono);
+  font-size: 2rem;
+  font-weight: 600;
+  color: var(--accent);
+  margin: 0;
 }
