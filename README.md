@@ -26,9 +26,9 @@ every value it computes on is homomorphically encrypted, start to finish.
 </div>
 
 > [!NOTE]
-> **No live deployment yet.** The Dockerfile and Cloud Run pipeline below are real and tested locally,
-> but there's no hosted instance right now — that needs a backend hosting account I haven't set up.
-> Run it locally with the steps in [Install & run](#-install--run); there is no live link to give you.
+> **Live at [shieldai-abheet19.fly.dev](https://shieldai-abheet19.fly.dev/).** Deployed on Fly.io from the
+> same Dockerfile in this repo (the Cloud Build config below is left as an alternate GCP path, unused).
+> The full `Predict → Encrypt → Compute → Reveal` flow runs end to end against the live instance.
 
 <div align="center">
 
@@ -197,8 +197,6 @@ Typography is Space Grotesk (display) + Inter (body) + JetBrains Mono (keys and 
 - **Single-user only.** Keys and intermediate payloads are process-wide files
   (`custkeys.json`, `data.json`, `answer.json`), not per-session state — two people using the app
   at once would collide.
-- **No live deployment.** The Dockerfile and Cloud Build config work; there's no hosted instance
-  because that needs a backend hosting account I haven't set up.
 - **Regression only.** The README this replaced also claimed classification support; the code in
   this repo only implements linear regression, so that claim is dropped here rather than repeated.
 - **No transport encryption.** This is a local demo over plain HTTP — real deployment would need
