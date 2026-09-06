@@ -6,8 +6,8 @@
 
 ### **Compute on it. Never see it.**
 
-A salary predictor where the company's model never once touches a raw number —<br>
-every value it computes on is homomorphically encrypted, start to finish.
+A loan-risk score where the lender's model never once touches a raw number —<br>
+every income, debt, and credit figure it computes on is homomorphically encrypted, start to finish.
 
 <br>
 
@@ -19,7 +19,7 @@ every value it computes on is homomorphically encrypted, start to finish.
 
 <br>
 
-<sub>A personal project by <b><a href="https://github.com/abheet19">Abheet</a></b> — a small, honest demo of partial homomorphic encryption applied to ML inference. Not production-hardened; see <a href="#-what-it-doesnt-do-yet">what it doesn't do yet</a>.</sub>
+<sub>A personal project by <b><a href="https://github.com/abheet19">Abheet</a></b> — a small, honest demo of partial homomorphic encryption applied to ML inference. Not production-hardened, and not a real underwriting model; see <a href="#-what-it-doesnt-do-yet">what it doesn't do yet</a>.</sub>
 
 <br>
 
@@ -28,11 +28,11 @@ every value it computes on is homomorphically encrypted, start to finish.
 > [!NOTE]
 > **Live at [shieldai-abheet19.fly.dev](https://shieldai-abheet19.fly.dev/).** Deployed on Fly.io from the
 > same Dockerfile in this repo (the Cloud Build config below is left as an alternate GCP path, unused).
-> The full `Predict → Encrypt → Compute → Reveal` flow runs end to end against the live instance.
+> The full `Assess → Encrypt → Compute → Reveal` flow runs end to end against the live instance.
 
 <div align="center">
 
-`Predict` &nbsp;→&nbsp; `Encrypt` &nbsp;→&nbsp; `Compute` &nbsp;→&nbsp; `Reveal`
+`Assess` &nbsp;→&nbsp; `Encrypt` &nbsp;→&nbsp; `Compute` &nbsp;→&nbsp; `Reveal`
 
 </div>
 
@@ -55,16 +55,20 @@ every value it computes on is homomorphically encrypted, start to finish.
 
 ## The problem
 
-Finance, healthcare, and insurance all want to run predictive models over sensitive data — but
-sending that data anywhere in the clear is a compliance problem and a breach waiting to happen.
-The usual answer is "we promise not to look." ShieldAI is a small proof that you don't have to
-take that promise on faith: the company's model can compute a real prediction **while every
-value it touches stays encrypted**, because Paillier encryption lets you add ciphertexts and
-scale them by a plaintext constant, and the result decrypts to exactly what you'd get from doing
-the arithmetic on the plaintext.
+Lenders score loan applications on exactly the data an applicant would rather not hand over in the
+clear: income, existing debt, credit utilization, employment history, how much you're asking to
+borrow. Every one of those is PII a lender has a regulatory and liability incentive to see as
+little of as possible — the usual answer is still "we promise to handle it carefully, trust us."
+ShieldAI is a small proof that a risk score doesn't require that promise: the lender's model can
+compute a real prediction **while every value it touches stays encrypted**, because Paillier
+encryption lets you add ciphertexts and scale them by a plaintext constant, and the result decrypts
+to exactly what you'd get from doing the arithmetic on the plaintext.
 
 A linear regression model is just weighted sums — which is exactly the arithmetic Paillier
-supports. That's the whole trick.
+supports. That's the whole trick. This demo happens to score loan risk; the same mechanism applies
+to any linear model over sensitive inputs (a salary predictor, a health-risk score, a fraud-score
+feature), risk scoring for lending is simply a use case where "the model never sees your raw
+financial data" is an actual, well-known ask in fintech rather than a hypothetical one.
 
 ---
 
@@ -74,16 +78,16 @@ supports. That's the whole trick.
 sequenceDiagram
     participant U as You (browser)
     participant C as cust.py<br/>(your keys)
-    participant S as servercalc.py<br/>(the "company")
+    participant S as servercalc.py<br/>(the lender)
 
-    U->>C: age, health score, activity score, gender
+    U->>C: income, debt, utilization, employment years, loan amount
     C->>C: generate Paillier keypair (public + private)
     C->>C: encrypt each value with the public key
     C->>S: encrypted values + public key only
     Note over S: linmodel.py's regression coefficients<br/>are plaintext — that part is public
-    S->>S: encrypted_salary = Σ (coefficient × encrypted_value)
+    S->>S: encrypted_risk_score = Σ (coefficient × encrypted_value) + intercept
     Note over S: every operand on the right is still ciphertext;<br/>S never reconstructs a plaintext feature
-    S->>U: encrypted_salary + public key
+    S->>U: encrypted_risk_score + public key
     U->>U: decrypt with the private key that never left this session
 ```
 
@@ -91,22 +95,27 @@ Four moving pieces, one per step in the nav bar:
 
 1. **`cust.py` — keys and encryption.** `storeKeys()` generates a fresh Paillier keypair
    (`generate_paillier_keypair()`) and writes it to `custkeys.json`. `serializeDataCustomer()`
-   encrypts each feature (age, healthy-eating score, active-lifestyle score, gender) individually
-   with the public key — four separate ciphertexts, not one blob.
+   encrypts each feature (annual income, existing debt, credit utilization %, employment years,
+   requested loan amount) individually with the public key — five separate ciphertexts, not one
+   blob.
 2. **`linmodel.py` — the model.** A plain `scikit-learn` `LinearRegression` trained on
-   `employee_data.csv`. Its coefficients are ordinary floats; they are the *only* thing about the
-   model that's public, and floats aren't sensitive the way a customer's raw inputs are.
-3. **`servercalc.py` — the computation.** `computeData()` reconstructs the four `EncryptedNumber`
+   `loan_data.csv`, a small **synthetic** dataset (see [`generate_loan_data.py`](generate_loan_data.py))
+   built from a documented linear formula plus noise, not real applicant records. Its coefficients
+   and intercept are ordinary floats; they are the *only* thing about the model that's public, and
+   floats aren't sensitive the way a customer's raw inputs are.
+3. **`servercalc.py` — the computation.** `computeData()` reconstructs the five `EncryptedNumber`
    objects from what the client sent and computes
-   `sum(coefficient[i] * encrypted_feature[i] for i in range(4))`. Paillier's homomorphic
-   properties make `plaintext × ciphertext` and `ciphertext + ciphertext` both valid operations
-   that stay encrypted — so this line runs real modular exponentiation on numbers the server can
-   never read, and the accumulated result is still one ciphertext.
-4. **`app.py`'s `/result` route — the reveal.** The encrypted salary comes back to the browser
+   `sum(coefficient[i] * encrypted_feature[i] for i in range(5)) + intercept`. Paillier's
+   homomorphic properties make `plaintext × ciphertext`, `ciphertext + ciphertext`, and
+   `ciphertext + plaintext` all valid operations that stay encrypted — so this line runs real
+   modular exponentiation on numbers the server can never read, and the accumulated result is
+   still one ciphertext.
+4. **`app.py`'s `/result` route — the reveal.** The encrypted risk score comes back to the browser
    along with the public key it was encrypted under. Only the private key — generated in step 1
-   and never sent anywhere — can turn that ciphertext into the number `21767.82`. The result page
-   now shows both side by side: the ciphertext blob the server computed on, and the plaintext only
-   you can see, so the claim is something you can look at rather than just read.
+   and never sent anywhere — can turn that ciphertext into a number like `43.3`. The result page
+   clamps that score into 0–100, bands it (low / review / high risk), and shows a gauge plus both
+   the ciphertext blob the server computed on and the plaintext only you can see, side by side, so
+   the claim is something you can look at rather than just read.
 
 The one place this demo cuts a corner on purpose: `custkeys.json`, `data.json`, and `answer.json`
 are server-side files, not session-scoped, so it's a single-user demo, not a multi-tenant service.
@@ -119,10 +128,10 @@ That's a demo simplification, not a claim about the crypto.
 | Layer | Technology | Role |
 |---|---|---|
 | **Encryption** | [`phe`](https://github.com/data61/python-paillier) | Paillier partial homomorphic encryption — keygen, encrypt, homomorphic add/scale |
-| **ML** | scikit-learn | `LinearRegression` trained on `employee_data.csv` |
+| **ML** | scikit-learn | `LinearRegression` trained on `loan_data.csv` (synthetic risk data) |
 | **Data handling** | numpy, pandas | Feature/target prep for training |
 | **Backend** | Flask | Routes for each step of the pipeline; Jinja2 templates |
-| **Frontend** | Bootstrap 5 (grid/forms) + hand-written CSS | Steel-blue glass UI, no JS framework |
+| **Frontend** | Bootstrap 5 (grid/forms) + hand-written CSS | Steel-blue glass UI, risk gauge, no JS framework |
 | **Server** | Gunicorn | WSGI server for the Docker image |
 | **Deploy config** | Docker, Cloud Build, GitHub Actions | Present and tested locally; not currently deployed |
 
@@ -153,12 +162,13 @@ by something else on Windows, in which case pass a different port to `app.run()`
 <br>
 
 ```powershell
-python train.py
+python generate_loan_data.py   # regenerate the synthetic loan_data.csv (optional, already committed)
+python train.py                # print coefficients/intercept for inspection
 ```
 
-Regenerates the linear regression coefficients from `employee_data.csv`. The live prediction path
-(`servercalc.py`) trains fresh from the CSV on each request rather than loading a pickle, so this
-step is optional unless you've changed the training data.
+`servercalc.py` doesn't load a pickle — it trains fresh from `loan_data.csv` on each `/company`
+request via `LinModel()`, so neither script is required to run the app; they exist so the model's
+behavior can be regenerated or inspected offline.
 
 </details>
 
@@ -174,6 +184,11 @@ construction (cast / flank / face) as those other marks, which is a deliberate n
 product actually is: privacy as a shield around your data. That same beveled-edge motif reappears
 as a thin top facet on every card, rather than drawing a literal shield on each one.
 
+The result page's risk gauge is a plain SVG semicircle (`pathLength="100"` + `stroke-dashoffset`),
+colored green/amber/red by band, next to a text badge — so the headline number never depends on
+color alone to be readable. Each input field on the assessment form carries a small "why this
+matters" tooltip (CSS-only, `data-tip` + `:hover`/`:focus`, so it's keyboard-reachable too).
+
 Typography is Space Grotesk (display) + Inter (body) + JetBrains Mono (keys and ciphertext blocks)
 — monospace specifically so a 300-digit ciphertext doesn't visually apologize for its size.
 
@@ -183,7 +198,7 @@ Typography is Space Grotesk (display) + Inter (body) + JetBrains Mono (keys and 
 
 Captured live from [the deployed app](https://shieldai-abheet19.fly.dev/).
 
-![ShieldAI — Predict Salary Analysis form](docs/screenshots/screenshot-1.png)
+![ShieldAI — Encrypted Loan Risk Assessment form](docs/screenshots/screenshot-1.png)
 
 > Steps 2–4 (Encrypt/Compute/Reveal) require a submitted form session to reach — the flow itself is
 > verified working end to end (see [How it actually works](#-how-it-actually-works)); only the
@@ -193,6 +208,10 @@ Captured live from [the deployed app](https://shieldai-abheet19.fly.dev/).
 
 ## 🚧 What it doesn't do yet
 
+- **Synthetic model, not a real underwriting system.** `loan_data.csv` is generated from a
+  documented linear formula plus noise (see [`generate_loan_data.py`](generate_loan_data.py)), not
+  real applicant or bureau data. The resulting score is a demo of the *mechanism*, not a calibrated
+  credit risk model — don't read anything about real loan eligibility into the numbers it returns.
 - **Single-user only.** Keys and intermediate payloads are process-wide files
   (`custkeys.json`, `data.json`, `answer.json`), not per-session state — two people using the app
   at once would collide.
