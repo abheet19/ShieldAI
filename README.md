@@ -23,6 +23,12 @@ every income, debt, and credit figure it computes on is homomorphically encrypte
 
 <br>
 
+![ShieldAI demo — an applicant's financial details are encrypted client-side, the lender's model scores the ciphertext, and only the private key reveals the score](docs/demo/shieldai-demo.gif)
+
+<sub>The whole flow, recorded against the live instance: five financial figures go in, a Paillier keypair is generated, the lender's model computes on the ciphertext, and the last step shows the encrypted blob the lender saw next to the score only the private key can reveal.</sub>
+
+<br>
+
 </div>
 
 > [!NOTE]
@@ -172,6 +178,30 @@ behavior can be regenerated or inspected offline.
 
 </details>
 
+<details>
+<summary><b>Regenerating the demo GIF</b></summary>
+
+<br>
+
+The README GIF is a real Playwright recording of the running app, not a mockup — re-record it
+whenever the UI changes:
+
+```powershell
+npm install                      # dev-only: Playwright, not a runtime dependency of the app
+npx playwright install chromium
+
+node tools/record-demo.mjs                              # drive the live instance, capture PNG frames
+node tools/record-demo.mjs http://localhost:8080        # ...or record against a local `python app.py`
+python tools/build-demo-gif.py                          # frames -> docs/demo/shieldai-demo.gif
+```
+
+`record-demo.mjs` writes frames to `docs/demo/frames/` (gitignored) named with the number of ticks
+each should hold; `build-demo-gif.py` downscales them to 900px, shares one palette across frames,
+and turns those holds into per-frame delays so the GIF dwells on the reveal without paying for
+duplicate frames.
+
+</details>
+
 ---
 
 ## 🎨 Design
@@ -200,9 +230,8 @@ Captured live from [the deployed app](https://shieldai-abheet19.fly.dev/).
 
 ![ShieldAI — Encrypted Loan Risk Assessment form](docs/screenshots/screenshot-1.png)
 
-> Steps 2–4 (Encrypt/Compute/Reveal) require a submitted form session to reach — the flow itself is
-> verified working end to end (see [How it actually works](#-how-it-actually-works)); only the
-> step-1 landing page has a static capture here for now.
+> Steps 2–4 (Encrypt/Compute/Reveal) require a submitted form session to reach, so they're captured
+> in the [demo GIF at the top](#-shieldai) rather than as stills here.
 
 ---
 

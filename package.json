@@ -1,0 +1,12 @@
+{
+  "name": "shieldai-demo-tools",
+  "private": true,
+  "description": "Dev-only tooling for recording the README demo GIF. Not part of the Flask app.",
+  "type": "module",
+  "scripts": {
+    "record-demo": "node tools/record-demo.mjs"
+  },
+  "devDependencies": {
+    "playwright": "^1.63.0"
+  }
+}

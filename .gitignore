@@ -43,3 +43,7 @@ Thumbs.db
 answer.json
 custkeys.json
 data.json
+node_modules/
+
+# demo recording scratch frames (the built GIF is committed)
+docs/demo/frames/
