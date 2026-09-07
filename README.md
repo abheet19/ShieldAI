@@ -231,7 +231,7 @@ Captured live from [the deployed app](https://shieldai-abheet19.fly.dev/).
 ![ShieldAI — Encrypted Loan Risk Assessment form](docs/screenshots/screenshot-1.png)
 
 > Steps 2–4 (Encrypt/Compute/Reveal) require a submitted form session to reach, so they're captured
-> in the [demo GIF at the top](#-shieldai) rather than as stills here.
+> in the demo GIF at the top of this README rather than as stills here.
 
 ---
 
