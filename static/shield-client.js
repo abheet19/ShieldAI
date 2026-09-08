@@ -86,6 +86,3 @@ form.addEventListener("submit", async (event) => {
     button.textContent = "Encrypt locally and evaluate";
   }
 });
-
-
-

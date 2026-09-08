@@ -25,7 +25,3 @@ if (!/Decrypted locally/.test(state || "")) throw new Error(`Wrong client state:
 await page.screenshot({ path: "docs/demo/browser-private-key-flow.png", fullPage: true });
 await browser.close();
 console.log(JSON.stringify({ result, state, payloadKeys: Object.keys(evaluationRequest), encryptedFields: Object.keys(evaluationRequest.encrypted_values) }));
-
-
-
-
