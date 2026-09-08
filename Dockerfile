@@ -8,4 +8,4 @@ COPY templates ./templates
 COPY static ./static
 RUN useradd --create-home appuser
 USER appuser
-CMD ["sh", "-c", "gunicorn --workers 2 --threads 4 --bind 0.0.0.0:${PORT} app:app"]
+CMD ["sh", "-c", "gunicorn --workers 1 --threads 4 --bind 0.0.0.0:${PORT} app:app"]

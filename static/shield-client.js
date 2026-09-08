@@ -32,7 +32,9 @@ function showError(message) {
 function readInputs() {
   const values = {};
   for (const [field, [min, max]] of Object.entries(limits)) {
-    const number = Number(new FormData(form).get(field));
+    const raw = String(new FormData(form).get(field) ?? "").trim();
+    if (!raw) throw new Error(`${field.replaceAll("_", " ")} is required.`);
+    const number = Number(raw);
     if (!Number.isFinite(number) || number < min || number > max) throw new Error(`${field.replaceAll("_", " ")} must be between ${min.toLocaleString()} and ${max.toLocaleString()}.`);
     values[field] = number;
   }
@@ -55,6 +57,8 @@ function explanation(score) {
 form.addEventListener("submit", async (event) => {
   event.preventDefault();
   error.hidden = true;
+  result.hidden = true;
+  empty.hidden = false;
   try {
     const inputs = readInputs();
     button.disabled = true;
@@ -66,6 +70,7 @@ form.addEventListener("submit", async (event) => {
     const response = await fetch("/api/v1/private-evaluations", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
+      signal: AbortSignal.timeout(15000),
       body: JSON.stringify({ public_key: { n: publicKey.n.toString() }, encrypted_values: encryptedValues }),
     });
     const payload = await response.json();

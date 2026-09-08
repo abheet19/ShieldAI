@@ -1,0 +1,35 @@
+/* =============================================================================
+   GLASS theme — shield · steel blue
+   ShieldAI — the privacy tool. A side project, and one of the five that expressed
+   these ideas in a second vocabulary (--bg-elevated, --glass-border, --text-dim)
+   this package replaces with the flagship grammar.
+
+   Mark palette (the origin of every number below):
+     #0A0D12 steel (ground) · #7CA6F7 highlight (accent) ·
+     #4F8EF7 mid · #2557B0 shade (accent-2) · #E7EDF7 bone
+
+   One blue family at three depths, deliberately: the mark is a shield plate and a
+   single gradient should read as metal catching light, not as a rainbow. So the
+   two accent hues here are 1.8 degrees apart, and the separation is carried by
+   lightness — which is exactly what the ladder is for.
+
+   Nine numbers. No structure. The lightness ladder, the radii, the type scale,
+   the motion curve and the four state hues all come from src/tokens.css and are
+   not visible from here — which is why a theme cannot break them.
+
+     hue    taken from the mark, unchanged.
+     chroma the mark's chroma, capped at the most saturated value sRGB can hold
+            at the lightness the contrast law assigns. Two numbers per accent
+            because the gamut at L 78% and the gamut at L 50% are different
+            shapes; one number would mean silent clipping in one of the two.
+     L      NOT HERE. Lightness is what contrast is made of, so it belongs to
+            the system. See tokens.css §1.3-1.4.
+
+   Verified by: node scripts/contrast.mjs
+   ============================================================================= */
+
+:root[data-glass="shield"] {
+  --h-ground: 260.6;    --c-ground: 0.0118;
+  --h-accent: 262.7;    --c-accent: 0.108;    --c-accent-lt: 0.127;
+  --h-accent-2: 260.9; --c-accent-2: 0.147; --c-accent-2-lt: 0.152;
+}

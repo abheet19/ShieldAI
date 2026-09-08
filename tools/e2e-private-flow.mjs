@@ -1,7 +1,7 @@
 import { chromium } from "playwright";
 
 const browser = await chromium.launch({ headless: true, executablePath: "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe" });
-const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
+const page = await browser.newPage({ colorScheme: "dark", viewport: { width: 1280, height: 900 } });
 let evaluationRequest;
 page.on("request", (request) => {
   if (request.url().endsWith("/api/v1/private-evaluations")) evaluationRequest = JSON.parse(request.postData());

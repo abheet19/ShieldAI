@@ -66,6 +66,8 @@ class EncryptedEvaluation:
     def from_payload(cls, raw: object) -> "EncryptedEvaluation":
         if not isinstance(raw, dict):
             raise ValidationError("Send a JSON object.")
+        if set(raw) != {"public_key", "encrypted_values"}:
+            raise ValidationError("Send only public_key and encrypted_values; raw inputs are not accepted.")
         key = raw.get("public_key")
         values = raw.get("encrypted_values")
         if not isinstance(key, dict) or not isinstance(values, dict):

@@ -1,6 +1,12 @@
 # ShieldAI — browser-private-key homomorphic-computation demo
 
-![ShieldAI encrypted browser flow](docs/demo/browser-private-key-flow.png)
+![ShieldAI encrypted browser flow](docs/demo/shieldai-demo.gif)
+
+<details><summary>Inspect the final privacy receipt</summary>
+
+![Decrypted browser result](docs/demo/browser-private-key-flow.png)
+
+</details>
 
 ShieldAI is an educational demonstration of **Paillier partial homomorphic encryption**. It computes a transparent, synthetic weighted indicator on ciphertext, without the evaluator receiving the raw form values or the private key.
 
@@ -9,7 +15,7 @@ It is **not** a credit-decision product, lending recommendation, security produc
 ## User flow
 
 1. A person enters five synthetic values locally in the browser and confirms the educational-demo notice.
-2. Browser JavaScript derives four bounded, non-sensitive indicator values.
+2. Browser JavaScript derives four bounded integer indicator values.
 3. The browser generates a 1024-bit Paillier key pair in memory. The private key never leaves the browser.
 4. The browser encrypts the four derived indicators and sends only the public modulus and ciphertexts to Flask.
 5. Flask validates the envelope, performs the transparent weighted sum on ciphertext, and returns an encrypted result.
@@ -50,3 +56,7 @@ Open `http://127.0.0.1:5000`. `GET /health` reports the browser-private-key arch
 ## Deployment notes
 
 The current Fly deployment is a demonstrator. Before a wider launch, add edge rate limits, authentication if it is not a public demo, structured observability without sensitive payloads, accessibility review, a 2048-bit performance/security decision, external cryptographic review, threat modeling, model governance, fairness assessment, and legal/compliance review.
+
+## Verification
+
+See [the reproducible testing guide](docs/TESTING.md) for UI scenarios, boundary checks and honest limits. Glass CSS is vendored from the project source with its license, so the deployed design does not depend on mutable CDN `@main` assets.

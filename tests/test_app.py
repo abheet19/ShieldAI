@@ -55,3 +55,14 @@ def test_evaluator_enforces_a_per_client_budget():
     limited = client.post("/api/v1/private-evaluations", json=payload)
     assert limited.status_code == 429
     assert int(limited.headers["Retry-After"]) >= 1
+
+
+def test_rejects_raw_fields_alongside_valid_ciphertexts():
+    _, _, payload = make_envelope(sample_values())
+    payload["annual_income"] = 85000
+    assert create_app().test_client().post("/api/v1/private-evaluations", json=payload).status_code == 400
+
+
+def test_oversized_request_never_reaches_evaluator():
+    response = create_app().test_client().post("/api/v1/private-evaluations", data="x" * 12001, content_type="application/json")
+    assert response.status_code == 413

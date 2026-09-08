@@ -11,6 +11,7 @@ a 16-second demo costs only ~26 distinct frames.
 from __future__ import annotations
 
 import re
+import json
 from pathlib import Path
 
 from PIL import Image
@@ -26,7 +27,8 @@ FRAME_RE = re.compile(r"^f(\d+)_h(\d+)\.png$")
 
 def load_frames():
     frames = []
-    for png in sorted(FRAMES_DIR.glob("*.png")):
+    manifest = json.loads((FRAMES_DIR / "manifest.json").read_text())
+    for png in [FRAMES_DIR / name for name in manifest["frames"]]:
         match = FRAME_RE.match(png.name)
         if not match:
             continue
