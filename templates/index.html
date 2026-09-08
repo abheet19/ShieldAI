@@ -1,118 +1,43 @@
 {% extends "base.html" %}
-{% set active_step = 'home' %}
-{% set step_index = 1 %}
-
-{% block title %}ShieldAI &mdash; Encrypted Loan Risk Assessment{% endblock %}
-
+{% block title %}ShieldAI — privacy-preserving precheck{% endblock %}
 {% block content %}
-<div class="shield-card">
-  <div class="shield-card-header">
-    <h1>Encrypted Loan Risk Assessment</h1>
-    <p class="shield-sub">Enter the details a lender would normally ask for. Every value is encrypted on your device before anything is sent onward &mdash; the lender's model scores your risk without ever seeing your raw income, debt, or credit data.</p>
+<section class="hero">
+  <div>
+    <p class="eyebrow">Privacy-preserving workflow</p>
+    <h1>Check a synthetic affordability indicator without sharing raw financial inputs.</h1>
+    <p class="lede">Your browser derives and encrypts four indicators. The evaluator receives ciphertexts and returns an encrypted sum. The private key never leaves this tab.</p>
   </div>
-  <div class="shield-card-body">
-    <form action="{{ url_for('customerEncryption')}}" method="post" id="loanForm" novalidate>
-      <div class="row justify-content-center">
-        <div class="col-12">
-          <div class="mb-3">
-            <label for="AnnualIncome" class="form-label">
-              Annual Income ($)
-              <span class="shield-tip" tabindex="0" data-tip="Higher, steadier income generally lowers risk &mdash; it means more room to absorb a new payment.">?</span>
-            </label>
-            <input type="number" class="form-control form-control-sm" name="Annual Income" id="AnnualIncome" placeholder="e.g. 65000" min="0" max="2000000" required>
-            <p class="shield-error" id="AnnualIncome-error">Enter an income between 0 and 2,000,000.</p>
-          </div>
-          <div class="mb-3">
-            <label for="ExistingDebt" class="form-label">
-              Existing Debt ($)
-              <span class="shield-tip" tabindex="0" data-tip="Total of what you already owe &mdash; more existing debt means less headroom for a new obligation.">?</span>
-            </label>
-            <input type="number" class="form-control form-control-sm" name="Existing Debt" id="ExistingDebt" placeholder="e.g. 12000" min="0" max="2000000" required>
-            <p class="shield-error" id="ExistingDebt-error">Enter a debt amount between 0 and 2,000,000.</p>
-          </div>
-          <div class="mb-3">
-            <label for="CreditUtilization" class="form-label">
-              Credit Utilization (%)
-              <span class="shield-tip" tabindex="0" data-tip="The share of your available credit you're currently using. Running consistently high is a classic strain signal.">?</span>
-            </label>
-            <input type="number" class="form-control form-control-sm" name="Credit Utilization" id="CreditUtilization" placeholder="On a scale of 0 to 100" min="0" max="100" required>
-            <p class="shield-error" id="CreditUtilization-error">Enter a whole number between 0 and 100.</p>
-          </div>
-          <div class="mb-3">
-            <label for="EmploymentYears" class="form-label">
-              Employment Years
-              <span class="shield-tip" tabindex="0" data-tip="Years at your current job or line of work. Longer tenure reads as income stability.">?</span>
-            </label>
-            <input type="number" class="form-control form-control-sm" name="Employment Years" id="EmploymentYears" placeholder="e.g. 4" min="0" max="60" required>
-            <p class="shield-error" id="EmploymentYears-error">Enter a whole number between 0 and 60.</p>
-          </div>
-          <div class="mb-3">
-            <label for="RequestedLoanAmount" class="form-label">
-              Requested Loan Amount ($)
-              <span class="shield-tip" tabindex="0" data-tip="What you're asking to borrow. A larger ask relative to your income and existing debt raises risk.">?</span>
-            </label>
-            <input type="number" class="form-control form-control-sm" name="Requested Loan Amount" id="RequestedLoanAmount" placeholder="e.g. 20000" min="0" max="2000000" required>
-            <p class="shield-error" id="RequestedLoanAmount-error">Enter an amount between 0 and 2,000,000.</p>
-          </div>
-        </div>
-      </div>
-      <div class="text-center">
-        <button type="submit" class="btn btn-primary btn-sm">Encrypt &amp; Continue</button>
-      </div>
-    </form>
-  </div>
-</div>
+  <aside class="protocol-card glass" aria-label="Privacy protocol">
+    <p class="protocol-title">What crosses the network</p>
+    <ol><li>Public Paillier modulus</li><li>Four encrypted derived indicators</li><li>Encrypted result</li></ol>
+    <p class="protocol-foot">Raw income, debt, utilization, loan amount, and the private key remain in the browser.</p>
+  </aside>
+</section>
+<section class="workflow-grid" aria-label="Private evaluation">
+  <form id="private-evaluation-form" class="card form-card" novalidate>
+    <div class="section-heading"><div><p class="eyebrow">Step 1 of 3</p><h2>Enter values locally</h2></div><span class="chip chip-accent">No account · no storage</span></div>
+    <p class="card-note">Use only your own synthetic or non-sensitive test values. Inputs are validated in the browser and never posted as plain text.</p>
+    <div class="fields">
+      <label class="field-label" for="annual_income">Annual income (USD)<input class="field" id="annual_income" name="annual_income" type="number" inputmode="decimal" min="1" max="2000000" step="1" placeholder="85000" required></label>
+      <label class="field-label" for="existing_debt">Existing debt (USD)<input class="field" id="existing_debt" name="existing_debt" type="number" inputmode="decimal" min="0" max="2000000" step="1" placeholder="12000" required></label>
+      <label class="field-label" for="credit_utilization_pct">Credit utilization (%)<input class="field" id="credit_utilization_pct" name="credit_utilization_pct" type="number" inputmode="decimal" min="0" max="100" step="0.1" placeholder="30" required></label>
+      <label class="field-label" for="employment_years">Employment years<input class="field" id="employment_years" name="employment_years" type="number" inputmode="decimal" min="0" max="60" step="0.1" placeholder="5" required></label>
+      <label class="field-label" for="requested_loan_amount">Requested amount (USD)<input class="field" id="requested_loan_amount" name="requested_loan_amount" type="number" inputmode="decimal" min="0" max="2000000" step="1" placeholder="20000" required></label>
+    </div>
+    <label class="consent"><input id="demo-consent" type="checkbox" required><span>I understand this is an educational, synthetic indicator and not a lending or eligibility decision.</span></label>
+    <p id="form-error" class="form-error" role="alert" hidden></p>
+    <button id="evaluate-button" class="btn btn-primary" type="submit">Encrypt locally and evaluate</button>
+  </form>
+  <section class="card result-card" aria-live="polite" aria-labelledby="result-title">
+    <div class="section-heading"><div><p class="eyebrow">Steps 2–3</p><h2 id="result-title">Encrypted result</h2></div><span id="result-state" class="state state-info"><span class="state-text"></span></span></div><p id="phase-detail" class="status-detail">Ready to create a browser-only key.</p>
+    <div id="result-empty" class="empty-state"><p>Your local plaintext result will appear here only after the browser decrypts the evaluator’s ciphertext.</p></div>
+    <div id="result-content" hidden>
+      <p class="indicator-label">Synthetic pressure indicator</p><p id="indicator-value" class="indicator-value">—</p><div class="gauge" aria-hidden="true"><span id="indicator-gauge" class="gauge-fill"></span></div>
+      <p id="indicator-copy" class="result-copy"></p>
+      <details class="receipt"><summary>View the privacy receipt</summary><dl><div><dt>Key owner</dt><dd>Browser memory only</dd></div><div><dt>Evaluator input</dt><dd>Public modulus + encrypted derived values</dd></div><div><dt>Persistence</dt><dd>None in this application</dd></div></dl></details>
+    </div>
+  </section>
+</section>
+<section class="method-card glass"><p class="eyebrow">Transparent model</p><h2>What the encrypted service calculates</h2><p>The browser derives debt-to-income, requested-amount-to-income, utilization, and a capped employment-stability gap. The service calculates <code>5 × debt-to-income + 4 × loan-to-income + 3 × utilization + 200 × stability gap</code> on ciphertexts. It cannot see the input values or decrypted total.</p></section>
 {% endblock %}
-
-{% block extra_scripts %}
-<script>
-  // Real client-side validation with inline messages, in place of relying
-  // on the browser's native tooltip (or a server-side 400) to catch a bad
-  // value. Every rule here mirrors the range the form fields advertise.
-  (function () {
-    var form = document.getElementById('loanForm');
-    var rules = [
-      { id: 'AnnualIncome', min: 0, max: 2000000, label: 'annual income' },
-      { id: 'ExistingDebt', min: 0, max: 2000000, label: 'existing debt' },
-      { id: 'CreditUtilization', min: 0, max: 100, label: 'credit utilization' },
-      { id: 'EmploymentYears', min: 0, max: 60, label: 'employment years' },
-      { id: 'RequestedLoanAmount', min: 0, max: 2000000, label: 'requested loan amount' }
-    ];
-
-    function showError(id, show) {
-      var field = document.getElementById(id);
-      var error = document.getElementById(id + '-error');
-      if (!field || !error) return;
-      field.classList.toggle('is-invalid', show);
-      error.classList.toggle('is-shown', show);
-    }
-
-    function validateNumberField(rule) {
-      var field = document.getElementById(rule.id);
-      var raw = field.value.trim();
-      var valid = raw !== '' &&
-        /^-?\d+$/.test(raw) &&
-        Number(raw) >= rule.min &&
-        Number(raw) <= rule.max;
-      showError(rule.id, !valid);
-      return valid;
-    }
-
-    rules.forEach(function (rule) {
-      document.getElementById(rule.id).addEventListener('input', function () {
-        validateNumberField(rule);
-      });
-    });
-
-    form.addEventListener('submit', function (event) {
-      var validations = rules.map(validateNumberField);
-      var allValid = validations.every(Boolean);
-      if (!allValid) {
-        event.preventDefault();
-        var firstInvalid = form.querySelector('.is-invalid');
-        if (firstInvalid) firstInvalid.focus();
-      }
-    });
-  })();
-</script>
-{% endblock %}
+{% block extra_scripts %}<script type="module" src="{{ url_for('static', filename='shield-client.js') }}"></script>{% endblock %}

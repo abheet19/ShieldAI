@@ -1,0 +1,12 @@
+.git
+.venv
+venv
+node_modules
+__pycache__
+.pytest_cache
+*.pyc
+tests
+docs/demo/frames
+custkeys.json
+data.json
+answer.json

@@ -8,7 +8,7 @@
 <div class="shield-card shield-card-result text-center">
   <div class="shield-card-header">
     <h1>Risk Assessment Result</h1>
-    <p class="shield-sub">Decrypted locally with your private key. This score was never visible to the lender.</p>
+    <p class="shield-sub">Computed with Paillier arithmetic in an isolated request. This educational demo does not persist inputs or keys.</p>
   </div>
   <div class="shield-card-body">
     {% if band %}
@@ -35,13 +35,13 @@
         <pre class="shield-key-block">{{ encrypted_payload }}</pre>
       </div>
       <div class="shield-reveal-pane is-plain">
-        <h5>What only you can see</h5>
+        <h5>Demo result</h5>
         <p class="shield-reveal-plain">{{ final_result }}{% if band %} &middot; {{ band.label }}{% endif %}</p>
       </div>
     </div>
     {% endif %}
 
-    <p class="shield-disclaimer">Demo only &mdash; this score comes from a synthetic linear model, not a real underwriting decision.</p>
+    <p class="shield-disclaimer">{{ privacy_notice }}</p>
 
     <div class="text-center">
       <a href="{{ url_for('home') }}" class="btn btn-primary mt-3 btn-sm">Assess Again</a>

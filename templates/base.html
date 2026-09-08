@@ -1,100 +1,24 @@
-<!DOCTYPE html>
-<html lang="en">
-
+<!doctype html>
+<html lang="en" data-glass="shield">
 <head>
-  <meta charset="UTF-8">
-  <title>{% block title %}ShieldAI &mdash; Encrypted Loan Risk Assessment{% endblock %}</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <!-- Bootstrap 5 (grid + form utility classes only; visuals overridden below) -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-
-  <!-- Shared theme fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}ShieldAI — private evaluation demo{% endblock %}</title>
+  <meta name="description" content="A browser-private-key Paillier homomorphic encryption demonstration.">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/abheet19/glass@main/src/tokens.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/abheet19/glass@main/src/themes/shield.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/abheet19/glass@main/src/primitives.css">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-  {% block extra_head %}{% endblock %}
 </head>
-
-<body>
-  <!-- Shield brand mark: three depth planes (cast / flank / face), same
-       construction language as the Weft and Vantage marks, in ShieldAI's
-       own steel-blue family. Defined once, referenced by every icon use. -->
-  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
-    <defs>
-      <linearGradient id="shieldFace" x1="0" y1="0" x2="0.3" y2="1">
-        <stop offset="0" stop-color="#a9c6fb"/>
-        <stop offset="0.5" stop-color="#7ca6f7"/>
-        <stop offset="1" stop-color="#2557b0"/>
-      </linearGradient>
-    </defs>
-  </svg>
-
-  <div class="shield-shell">
-    <header class="shield-nav">
-      <a class="shield-brand" href="{{ url_for('home') }}">
-        <svg class="shield-mark" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-          <path class="plate" d="M12 1.5 21 5v6.2c0 6-3.8 10.4-9 11.3-5.2-.9-9-5.3-9-11.3V5l9-3.5Z"/>
-          <path d="M8.3 12.2l2.5 2.5 5-5.4" fill="none" stroke="#061018" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-        <span class="shield-brand-text">ShieldAI</span>
-      </a>
-      <ol class="shield-steps">
-        <li class="{{ 'is-active' if active_step == 'home' else '' }}{{ ' is-done' if step_index and step_index > 1 }}">
-          <span class="step-num">1</span><span class="step-label">Assess</span>
-        </li>
-        <li class="{{ 'is-active' if active_step == 'customer' else '' }}{{ ' is-done' if step_index and step_index > 2 }}">
-          <span class="step-num">2</span><span class="step-label">Encrypt</span>
-        </li>
-        <li class="{{ 'is-active' if active_step == 'company' else '' }}{{ ' is-done' if step_index and step_index > 3 }}">
-          <span class="step-num">3</span><span class="step-label">Compute</span>
-        </li>
-        <li class="{{ 'is-active' if active_step == 'result' else '' }}">
-          <span class="step-num">4</span><span class="step-label">Reveal</span>
-        </li>
-      </ol>
+<body class="glass-page glass-atmosphere">
+  <div class="site-shell">
+    <header class="site-nav">
+      <a class="brand" href="{{ url_for('home') }}" aria-label="ShieldAI home"><span class="brand-mark" aria-hidden="true">◇</span><span>ShieldAI</span></a>
+      <p class="nav-note">Paillier · browser-held private key</p>
     </header>
-
-    <main class="shield-main">
-      {% block content %}{% endblock %}
-    </main>
-
-    <footer class="shield-footer">
-      <span>Homomorphic Encryption demo &middot; Paillier cryptosystem &middot; synthetic risk model, not real underwriting &middot; data never leaves this session unencrypted</span>
-    </footer>
+    <main class="site-main">{% block content %}{% endblock %}</main>
+    <footer class="site-footer">Educational privacy-enhancing cryptography demo. Synthetic indicator only; not credit, lending, or financial advice.</footer>
   </div>
-
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-  <script>
-    // Shared across every page: once a form is actually going to submit
-    // (nothing upstream called preventDefault on this event), show a
-    // spinner on its submit button. The encrypt -> compute -> decrypt hop
-    // that follows is real modular-exponentiation math on the server and
-    // can take a visible moment, so this is real feedback, not decoration.
-    document.querySelectorAll('form').forEach(function (form) {
-      form.addEventListener('submit', function (event) {
-        if (event.defaultPrevented) return;
-        var btn = form.querySelector('button[type="submit"]');
-        if (!btn) return;
-        if (!btn.querySelector('.shield-spinner')) {
-          var spinner = document.createElement('span');
-          spinner.className = 'shield-spinner';
-          btn.prepend(spinner);
-        }
-        btn.classList.add('is-loading');
-        // Defer disabling the button: disabling the submitter synchronously
-        // inside its own submit handler can cancel the in-flight submission
-        // in some browsers. A 0ms timeout runs after the navigation has
-        // already been queued, so the spinner still shows but nothing
-        // gets cancelled.
-        setTimeout(function () {
-          btn.disabled = true;
-        }, 0);
-      });
-    });
-  </script>
   {% block extra_scripts %}{% endblock %}
 </body>
-
 </html>
