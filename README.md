@@ -39,14 +39,14 @@ flowchart LR
 - The evaluator rejects raw financial fields, unknown fields, even or non-1024-bit moduli, malformed ciphertexts, and bodies larger than 12 KB.
 - A client may make at most eight evaluations per hour per running process. Fly's `Fly-Client-IP` header is used for the client bucket; a production public launch should add an edge/WAF rate limit because process-local limits do not coordinate across machines.
 - The evaluator has no database, stores no applicant data, holds no private key, and sends `Cache-Control: no-store`.
-- The service makes no paid LLM, embedding, or external-model API calls. There is no prompt-injection or token-billing path.
+- The service makes no paid LLM, embedding, or external-model API calls. There is no prompt-injection or token-billing path. Every response carries a generated request ID and `Server-Timing`; structured events contain only method, route template, status, duration, and that ID.
 - Paillier makes addition and plaintext-coefficient multiplication possible on ciphertext. It does not make this a secure end-to-end lending system or support arbitrary encrypted branching or neural-network inference.
 
 ## Run locally
 
 ```powershell
 py -m venv .venv
-.\.venv\Scripts\python.exe -m pip install -r requirements.txt
+.\.venv\Scripts\python.exe -m pip install -r requirements-dev.txt
 .\.venv\Scripts\python.exe -m pytest -q
 .\.venv\Scripts\python.exe -m flask --app app run
 ```
@@ -55,8 +55,8 @@ Open `http://127.0.0.1:5000`. `GET /health` reports the browser-private-key arch
 
 ## Deployment notes
 
-The current Fly deployment is a demonstrator. Before a wider launch, add edge rate limits, authentication if it is not a public demo, structured observability without sensitive payloads, accessibility review, a 2048-bit performance/security decision, external cryptographic review, threat modeling, model governance, fairness assessment, and legal/compliance review.
+The current Fly deployment is a demonstrator. Before a wider launch, add edge rate limits, authentication if it is not a public demo, retained monitoring and alerting for the current payload-free events, an accessibility review, a 2048-bit performance/security decision, external cryptographic review, threat modeling, model governance, fairness assessment, and legal/compliance review.
 
 ## Verification
 
-See [the reproducible testing guide](docs/TESTING.md) for UI scenarios, boundary checks and honest limits. Glass CSS is vendored from the project source with its license, so the deployed design does not depend on mutable CDN `@main` assets.
+See [the reproducible testing guide](docs/TESTING.md) for UI scenarios, boundary checks and honest limits, and the [study guide](docs/STUDY_GUIDE.md) for the protocol, arithmetic and production tradeoffs. The patched 2026-09-09 runtime dependency set passed all seven backend tests and a current `pip-audit` reported no known vulnerabilities. The production image installs only Flask, Gunicorn and `phe`; moving the historical CSV/regression stack out of the image reduced the measured local image size from **154.8 MB to 48.5 MB**. The ten-group real browser gate also generates a key, posts four ciphertexts, runs Flask/Python homomorphic arithmetic, decrypts locally, exercises recovery states, switches theme, and checks the responsive layout. The exact release image scored **100/100** in Lighthouse performance, accessibility, best practices, and SEO; observed FCP was 1,302 ms, LCP 1,383 ms, TBT 0 ms, and CLS 0.000. Glass CSS and Paillier browser code are vendored with the application, so the deployed design does not depend on mutable CDN `@main` assets.

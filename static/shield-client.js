@@ -10,6 +10,9 @@ const value = document.querySelector("#indicator-value");
 const gauge = document.querySelector("#indicator-gauge");
 const copy = document.querySelector("#indicator-copy");
 const phase = document.querySelector("#phase-detail");
+const themeToggle = document.querySelector("#theme-toggle");
+const exampleButton = document.querySelector("#example-button");
+const THEME_KEY = "shieldai-theme";
 const limits = {
   annual_income: [1, 2_000_000],
   existing_debt: [0, 2_000_000],
@@ -29,13 +32,29 @@ function showError(message) {
   error.hidden = false;
   setState("bad", "Error");
 }
+function setTheme(theme) {
+  document.documentElement.dataset.theme = theme;
+  const dark = theme === "dark";
+  themeToggle.textContent = dark ? "Light theme" : "Dark theme";
+  themeToggle.setAttribute("aria-pressed", String(dark));
+}
 function readInputs() {
+  form.querySelectorAll(".field").forEach((input) => input.removeAttribute("aria-invalid"));
   const values = {};
   for (const [field, [min, max]] of Object.entries(limits)) {
+    const input = document.querySelector(`#${field}`);
     const raw = String(new FormData(form).get(field) ?? "").trim();
-    if (!raw) throw new Error(`${field.replaceAll("_", " ")} is required.`);
+    if (!raw) {
+      input.setAttribute("aria-invalid", "true");
+      input.focus();
+      throw new Error(`${field.replaceAll("_", " ")} is required.`);
+    }
     const number = Number(raw);
-    if (!Number.isFinite(number) || number < min || number > max) throw new Error(`${field.replaceAll("_", " ")} must be between ${min.toLocaleString()} and ${max.toLocaleString()}.`);
+    if (!Number.isFinite(number) || number < min || number > max) {
+      input.setAttribute("aria-invalid", "true");
+      input.focus();
+      throw new Error(`${field.replaceAll("_", " ")} must be between ${min.toLocaleString()} and ${max.toLocaleString()}.`);
+    }
     values[field] = number;
   }
   if (!document.querySelector("#demo-consent").checked) throw new Error("Confirm that you understand this is an educational synthetic indicator.");
@@ -54,6 +73,26 @@ function explanation(score) {
   if (score < 65) return "Moderate synthetic pressure under this transparent demonstration. It is not a prediction or decision.";
   return "Higher synthetic pressure under this transparent demonstration. It is not a prediction or decision.";
 }
+
+setTheme(localStorage.getItem(THEME_KEY) || (matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark"));
+themeToggle.addEventListener("click", () => {
+  const theme = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
+  localStorage.setItem(THEME_KEY, theme);
+  setTheme(theme);
+});
+exampleButton.addEventListener("click", () => {
+  const example = { annual_income: 85000, existing_debt: 12000, credit_utilization_pct: 30, employment_years: 5, requested_loan_amount: 20000 };
+  for (const [field, sample] of Object.entries(example)) {
+    const input = document.querySelector(`#${field}`);
+    input.value = String(sample);
+    input.removeAttribute("aria-invalid");
+  }
+  error.hidden = true;
+  document.querySelector("#demo-consent").focus();
+});
+form.addEventListener("input", (event) => {
+  if (event.target.matches(".field")) event.target.removeAttribute("aria-invalid");
+});
 form.addEventListener("submit", async (event) => {
   event.preventDefault();
   error.hidden = true;
@@ -73,11 +112,15 @@ form.addEventListener("submit", async (event) => {
       signal: AbortSignal.timeout(15000),
       body: JSON.stringify({ public_key: { n: publicKey.n.toString() }, encrypted_values: encryptedValues }),
     });
-    const payload = await response.json();
+    const payload = await response.json().catch(() => ({}));
     if (!response.ok) throw new Error(payload.error || "The encrypted evaluator could not complete the request.");
     button.textContent = "Decrypting locally…";
-    const rawTotal = privateKey.decrypt(BigInt(payload.encrypted_result.ciphertext));
-    const score = Math.min(100, Math.round((Number(rawTotal) / payload.model.normalization_divisor) * 10) / 10);
+    const ciphertext = payload?.encrypted_result?.ciphertext;
+    const divisor = Number(payload?.model?.normalization_divisor);
+    if (typeof ciphertext !== "string" || !/^\d+$/.test(ciphertext) || !Number.isFinite(divisor) || divisor <= 0) throw new Error("The encrypted evaluator returned an invalid response.");
+    const rawTotal = privateKey.decrypt(BigInt(ciphertext));
+    if (rawTotal < 0n || rawTotal > BigInt(Number.MAX_SAFE_INTEGER)) throw new Error("The decrypted result is outside the supported range.");
+    const score = Math.min(100, Math.round((Number(rawTotal) / divisor) * 10) / 10);
     value.textContent = `${score}/100`;
     gauge.style.width = `${score}%`;
     copy.textContent = explanation(score);
@@ -85,7 +128,8 @@ form.addEventListener("submit", async (event) => {
     result.hidden = false;
     setState("ok", "Decrypted locally");
   } catch (caught) {
-    showError(caught instanceof Error ? caught.message : "The private evaluation could not run.");
+    const message = caught instanceof Error && caught.name === "TimeoutError" ? "The encrypted evaluator timed out. Try again." : caught instanceof Error ? caught.message : "The private evaluation could not run.";
+    showError(message);
   } finally {
     button.disabled = false;
     button.textContent = "Encrypt locally and evaluate";

@@ -1,0 +1,52 @@
+name: Verify ShieldAI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+  workflow_dispatch:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - run: python -m pip install -r requirements-dev.txt
+      - name: Audit Python runtime dependencies
+        run: |
+          python -m pip install pip-audit==2.9.0
+          python -m pip_audit -r requirements.txt
+      - run: python -m pytest -q --tb=short
+      - name: Install and audit browser verification tooling
+        run: |
+          npm ci
+          npm audit --audit-level=high
+          npx playwright install --with-deps chromium
+      - name: Run real browser-key encrypted workflow
+        run: |
+          python -m flask --app app run --host 127.0.0.1 --port 5055 > /tmp/shieldai-flask.log 2>&1 &
+          server_pid=$!
+          trap 'kill "$server_pid"' EXIT
+          for attempt in $(seq 1 30); do
+            curl --fail --silent http://127.0.0.1:5055/health >/dev/null && break
+            sleep 1
+          done
+          VERIFICATION_DIR=browser-results npm run verify:browser
+      - name: Build production image
+        run: docker build --tag shieldai-ci .
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: shieldai-browser-evidence
+          path: browser-results/
+          if-no-files-found: ignore

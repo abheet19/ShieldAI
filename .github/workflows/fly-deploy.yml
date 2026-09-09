@@ -1,0 +1,25 @@
+name: Deploy verified ShieldAI to Fly
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: shieldai-fly-deploy
+  cancel-in-progress: false
+
+jobs:
+  verify:
+    uses: ./.github/workflows/ci.yml
+  deploy:
+    needs: verify
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: superfly/flyctl-actions/setup-flyctl@master
+      - name: Deploy the fully verified revision
+        run: flyctl deploy --remote-only --app shieldai-abheet19
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}

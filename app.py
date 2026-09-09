@@ -7,7 +7,10 @@ Educational demo only: never a lending, eligibility, or financial-advice tool.
 """
 from __future__ import annotations
 
+import json
+import logging
 import os
+import secrets
 import time
 from collections import defaultdict, deque
 from dataclasses import dataclass
@@ -16,7 +19,7 @@ from threading import Lock
 from typing import Mapping
 
 import phe as paillier
-from flask import Flask, jsonify, render_template, request
+from flask import Flask, g, jsonify, render_template, request
 
 FEATURES = ("debt_to_income_bps", "loan_to_income_bps", "utilization_bps", "stability_gap_months")
 WEIGHTS = {
@@ -112,6 +115,7 @@ def client_key() -> str:
 
 def create_app(*, evaluation_limit: int | None = None) -> Flask:
     app = Flask(__name__)
+    app.logger.setLevel(logging.INFO)
     app.config["MAX_CONTENT_LENGTH"] = MAX_REQUEST_BYTES
     limit = evaluation_limit if evaluation_limit is not None else int(os.getenv("SHIELDAI_EVALUATIONS_PER_HOUR", DEFAULT_EVALUATIONS_PER_HOUR))
     if limit < 1:
@@ -119,12 +123,47 @@ def create_app(*, evaluation_limit: int | None = None) -> Flask:
     limiter = RequestLimiter(limit)
     app.extensions["private_evaluation_limiter"] = limiter
 
+    @app.before_request
+    def start_request_measurement():
+        g.request_started = time.perf_counter()
+        g.request_id = secrets.token_hex(8)
+
     @app.after_request
     def security_headers(response):
         response.headers["Cache-Control"] = "no-store"
         response.headers["X-Content-Type-Options"] = "nosniff"
         response.headers["Referrer-Policy"] = "same-origin"
+        response.headers["X-Frame-Options"] = "DENY"
+        response.headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=()"
+        response.headers["Content-Security-Policy"] = (
+            "default-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'; "
+            "object-src 'none'; script-src 'self'; worker-src 'self' blob:; style-src 'self'; "
+            "img-src 'self' data:; connect-src 'self'"
+        )
+        duration_ms = round((time.perf_counter() - g.request_started) * 1000, 2)
+        response.headers["X-Request-ID"] = g.request_id
+        response.headers["Server-Timing"] = f"app;dur={duration_ms}"
+        route = request.url_rule.rule if request.url_rule is not None else "unmatched"
+        # The audit event excludes form values, ciphertexts, keys, IPs, request
+        # bodies, and query strings; those do not belong in platform logs.
+        app.logger.info(
+            json.dumps(
+                {
+                    "event": "http_request",
+                    "request_id": g.request_id,
+                    "method": request.method,
+                    "route": route,
+                    "status": response.status_code,
+                    "duration_ms": duration_ms,
+                },
+                separators=(",", ":"),
+            )
+        )
         return response
+
+    @app.errorhandler(413)
+    def request_too_large(_):
+        return jsonify({"error": f"Encrypted evaluation requests are limited to {MAX_REQUEST_BYTES} bytes."}), 413
 
     @app.get("/")
     def home():
@@ -143,15 +182,17 @@ def create_app(*, evaluation_limit: int | None = None) -> Flask:
 
     @app.post("/api/v1/private-evaluations")
     def private_evaluation():
+        try:
+            evaluation = EncryptedEvaluation.from_payload(request.get_json(silent=True))
+        except ValidationError as error:
+            return jsonify({"error": str(error)}), 400
+        # Invalid envelopes are cheap to reject and must not consume the quota
+        # reserved for CPU-bound homomorphic evaluation.
         retry_after = limiter.retry_after(client_key())
         if retry_after is not None:
             response = jsonify({"error": "Evaluation budget reached. Try again later."})
             response.headers["Retry-After"] = str(retry_after)
             return response, 429
-        try:
-            evaluation = EncryptedEvaluation.from_payload(request.get_json(silent=True))
-        except ValidationError as error:
-            return jsonify({"error": str(error)}), 400
         result = encrypted_weighted_sum(evaluation)
         return jsonify(
             {

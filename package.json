@@ -4,7 +4,8 @@
   "description": "Dev-only tooling for recording the README demo GIF. Not part of the Flask app.",
   "type": "module",
   "scripts": {
-    "record-demo": "node tools/record-demo.mjs"
+    "record-demo": "node tools/record-demo.mjs",
+    "verify:browser": "node tools/verify-workflows.mjs"
   },
   "devDependencies": {
     "playwright": "^1.63.0"

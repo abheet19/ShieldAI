@@ -1,6 +1,6 @@
 import { chromium } from "playwright";
 
-const browser = await chromium.launch({ headless: true, executablePath: "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe" });
+const browser = await chromium.launch({ headless: true, ...(process.env.SHIELDAI_BROWSER_PATH ? { executablePath: process.env.SHIELDAI_BROWSER_PATH } : {}) });
 const page = await browser.newPage({ colorScheme: "dark", viewport: { width: 1280, height: 900 } });
 let evaluationRequest;
 page.on("request", (request) => {
@@ -22,6 +22,6 @@ if (!evaluationRequest || !evaluationRequest.public_key || !evaluationRequest.en
 if (Object.keys(evaluationRequest).sort().join(",") !== "encrypted_values,public_key") throw new Error("Payload included unexpected fields.");
 if (!/\/100/.test(result || "")) throw new Error(`Missing decrypted indicator: ${result}`);
 if (!/Decrypted locally/.test(state || "")) throw new Error(`Wrong client state: ${state}`);
-await page.screenshot({ path: "docs/demo/browser-private-key-flow.png", fullPage: true });
+await page.screenshot({ path: process.env.SHIELDAI_SCREENSHOT_PATH || "docs/demo/browser-private-key-flow.png", fullPage: true });
 await browser.close();
 console.log(JSON.stringify({ result, state, payloadKeys: Object.keys(evaluationRequest), encryptedFields: Object.keys(evaluationRequest.encrypted_values) }));
