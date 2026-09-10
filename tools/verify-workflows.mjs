@@ -169,6 +169,13 @@ try {
   await receiptSummary.focus();
   await page.keyboard.press("Enter");
   assert.equal(await page.locator("details.receipt").getAttribute("open"), "");
+  assert.equal(
+    await receiptSummary.evaluate((element) => {
+      const rect = element.getBoundingClientRect();
+      return rect.width >= 24 && rect.height >= 24;
+    }),
+    true,
+  );
   await page.screenshot({
     path: `${outputDirectory}/desktop-result.png`,
     fullPage: true,

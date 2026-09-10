@@ -65,13 +65,14 @@ CI runs ESLint, Ruff, Prettier, eight backend tests, the bounded-load assertion,
 
 ## Current measured evidence
 
-| Result                                                                                          | Evidence                                       |
-| ----------------------------------------------------------------------------------------------- | ---------------------------------------------- |
-| Eight backend tests passed                                                                      | `tests/test_app.py`                            |
-| Sixteen all-CTA browser groups passed with zero errors; encrypted flow produced 37.5/100        | `tools/verify-workflows.mjs`; release evidence |
-| 30-request, six-worker probe accepted 8 and bounded 22 with HTTP 429                            | `tools/bounded_load.py`; release evidence      |
-| Lighthouse 13.4.1: 100/100/100/100; FCP 1.3 s, LCP 1.4 s, TBT 0 ms, CLS 0                       | release evidence; controlled local desktop run |
-| Ruff, ESLint, Prettier, npm audit, pip-audit, Docker, and Husky are wired into the release path | configuration and release evidence             |
+| Result                                                                                                                                                                            | Evidence                                       |
+| --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------- |
+| Eight backend tests passed                                                                                                                                                        | `tests/test_app.py`                            |
+| Sixteen all-CTA browser groups passed with zero errors; encrypted flow produced 37.5/100                                                                                          | `tools/verify-workflows.mjs`; release evidence |
+| Live acceptance at 320x800, 768x1024, 1366x768, and 1920x1080 checks every visible CTA, post-result semantics, overflow, target size, keyboard access, and automated WCAG signals | four-viewport release evidence                 |
+| 30-request, six-worker probe accepted 8 and bounded 22 with HTTP 429                                                                                                              | `tools/bounded_load.py`; release evidence      |
+| Lighthouse 13.4.1: 100/100/100/100; FCP 1.3 s, LCP 1.4 s, TBT 0 ms, CLS 0                                                                                                         | release evidence; controlled local desktop run |
+| Ruff, ESLint, Prettier, npm audit, pip-audit, Docker, and Husky are wired into the release path                                                                                   | configuration and release evidence             |
 
 Evidence is scoped to the named tree/environment. WCAG-related checks are strong automated and keyboard evidence, not third-party certification.
 

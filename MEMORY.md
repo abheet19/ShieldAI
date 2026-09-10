@@ -21,7 +21,7 @@
 
 ## Verification contract
 
-Run `npm run check`, `npm run verify:load`, `npm audit --audit-level=high`, `python -m pip_audit -r requirements.txt`, the browser workflow, production Docker build/smoke, and post-deploy `/health`, `/version`, static-asset, security-header, mobile/theme, and encrypted-example checks. Current browser coverage includes every visible CTA, keyboard operation, 320 px overflow/targets, validation, consent, strict request payload, 429 and malformed response recovery, theme persistence, receipt, home/reset, request timing, and scroll-frame sampling.
+Run `npm run check`, `npm run verify:load`, `npm audit --audit-level=high`, `python -m pip_audit -r requirements.txt`, the browser workflow, production Docker build/smoke, and post-deploy `/health`, `/version`, static-asset, security-header, mobile/theme, and encrypted-example checks. Current browser coverage includes every visible CTA, keyboard operation, four release viewports (320x800, 768x1024, 1366x768, and 1920x1080), overflow/targets, validation, consent, strict request payload, 429 and malformed response recovery, theme persistence, receipt, home/reset, request timing, and scroll-frame sampling.
 
 ## Known limits
 
@@ -36,5 +36,6 @@ Run `npm run check`, `npm run verify:load`, `npm audit --audit-level=high`, `pyt
 - Removed startup opacity animation so primary content paints immediately.
 - Added complete usage, testing, study, and AI context handoffs.
 - Fixed Linux CI's 320 px font-metric overflow by allowing dense section headings and chips to wrap; the browser workflow was repeated five times locally before republishing.
+- Gave the dynamic result state explicit status semantics and guaranteed a 24 CSS-pixel receipt-summary target; regression checks cover both post-evaluation states.
 
 Retired wizard/CSV/regression files remain tracked as historical, non-runtime material for compatibility and audit history. They are absent from the Docker image and must not be reconnected to the product path.

@@ -221,6 +221,7 @@ h2 {
 .receipt summary {
   cursor: pointer;
   color: var(--ink);
+  min-height: 24px;
 }
 .receipt dl {
   margin-bottom: 0;
