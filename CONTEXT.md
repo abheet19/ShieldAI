@@ -1,6 +1,6 @@
 # ShieldAI — current implementation context
 
-> Evidence snapshot: 10 September 2026 IST. Canonical repository: `D:\Code\ShieldAI`; local branch `codex/shieldai-release` base `0dcdd521c613da78621775dfeb2cdf03fdbd36f4` has no upstream and current visual/evidence changes. Fly v8 maps to older source `e3e1f0db3e8aba14bd146ba651eda34d7a8ab92a`.
+> Evidence snapshot updated 10 September 2026 IST. Canonical repository: `D:\Code\ShieldAI`; the reviewed candidate through `a10775a204d64525dcad9ca2790f5a0749ce05d8` is three commits ahead of public `master` `e3e1f0db3e8aba14bd146ba651eda34d7a8ab92a`, and this documentation-only commit is layered on that candidate. Local branch `codex/shieldai-release` has no upstream. Retained deployment evidence maps Fly v8 to the older public source; a current anonymous `/health` request returned 200 but exposes no release SHA. Neither the reviewed candidate nor this documentation update is pushed or deployed.
 >
 > This is the short, AI-readable map. Current source and executable tests win if an older design note disagrees. A dirty working tree is a candidate, not a release; a configured URL is not proof that the candidate is deployed.
 
@@ -65,7 +65,7 @@ Flask serves the page, `/health`, and `/api/v1/private-evaluations`; it has no d
 
 CI installs/audits Python dependencies, runs seven backend tests, audits Node tooling, runs the real browser encrypted flow, and builds the production Docker image. The image installs only Flask, Gunicorn, and `phe` and runs unprivileged. Manual Fly deployment depends on CI and `FLY_API_TOKEN`.
 
-Fly v8 maps to older `e3e1f0d...`; the local branch/base and visual paths are not deployed. Review and merge a commit through a tracked path, rerun reusable CI/image/browser evidence, deploy with approval, record source/image/release/machine and a synthetic post-smoke, and retain v8 for rollback. No database migration is involved. Wider release needs modern production parameters, distributed edge limits/monitoring, and independent cryptographic/security/fairness/legal review.
+Fly v8 maps to older `e3e1f0d...`; reviewed candidate `a10775a...` and this documentation-only commit are not deployed. Review the three candidate commits through `a10775a...` plus this documentation commit through a tracked publication path, rerun reusable CI/image/browser evidence on the final documentation tree, deploy with approval, record source/image/release/machine and a synthetic post-smoke, and retain v8 for rollback. No database migration is involved. Wider release needs modern production parameters, distributed edge limits/monitoring, and independent cryptographic/security/fairness/legal review.
 
 ## Current measured evidence
 
@@ -75,7 +75,7 @@ Fly v8 maps to older `e3e1f0d...`; the local branch/base and visual paths are no
 | Ten real-browser groups passed, zero errors; exact encrypted flow produced 37.5/100 | `D:\Code\ShieldAI\docs\verification\browser-results.json` |
 | Image reduced from 154.8 MB to 48.5 MB; retained dependency audit clean; local Lighthouse 100/100/100/100 | `D:\Work\ShieldAI Study Pack\08_TESTING_ARTIFACT.md` |
 | 30-request quota probe accepted 8 and rate-limited 22; bounded behavior, not capacity | `D:\Work\ShieldAI Study Pack\08_TESTING_ARTIFACT.md` |
-| Fly v8 is older than the local candidate | `D:\Work\ShieldAI Study Pack\release-verification.json` |
+| Fly v8/public `master` are `e3e1f0d...`; reviewed candidate `a10775a...` is three commits ahead, with this documentation update layered above it; both remain unpublished | `C:\Users\abhee\OneDrive\Documents\ChatGPT\code\verification-work\shieldai-release-20260910\RELEASE_MANIFEST.md; D:\Work\ShieldAI Study Pack\release-verification.json` |
 
 The evidence above belongs to the named local working-tree snapshot unless it explicitly names a release/image. It does not become live evidence merely because a deployment configuration exists.
 
@@ -85,7 +85,7 @@ The evidence above belongs to the named local working-tree snapshot unless it ex
 - No range proof, proof of honest derivation, malicious-client protection, replay binding, authenticated user/origin, distributed quota, or external crypto audit.
 - The formula has no empirical lending, fairness, legal, or decision-quality validation.
 - Process quota resets on restart and does not coordinate across machines; local timing is not device-fleet or load evidence.
-- The current branch/visual candidate is not live v8.
+- Neither reviewed candidate `a10775a...` nor this documentation update is live in Fly v8.
 
 ## Reading order
 

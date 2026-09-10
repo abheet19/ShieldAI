@@ -28,11 +28,11 @@ docker build -t shieldai-local .
 
 - Seven pytest tests and ten browser groups passed; current browser JSON records zero errors and exact 37.5/100.
 - Retained image size/audit/Lighthouse/quota evidence is bounded and dated in Study Pack 08.
-- Fly v8 is older source; local branch and visual paths are not deployed.
+- Fly v8/public `master` are older `e3e1f0d...`; the branch has no upstream. Reviewed candidate `a10775a...` is three commits ahead, this documentation update adds one more unpublished commit, and neither is deployed.
 
 ## Release sequence
 
-1. Review/commit the local branch and visual paths through a tracked merge path.
+1. Review the three candidate commits through `a10775a...` plus this documentation-only commit and choose/configure a tracked publication path.
 2. Run reusable CI and production image at that exact commit.
 3. Deploy with approval; record source/image/release/machine and synthetic health/encrypted/theme/mobile smoke.
 4. Retain v8; require stronger parameters, distributed controls, monitoring, and independent reviews before wider use.
