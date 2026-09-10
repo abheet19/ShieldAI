@@ -6,7 +6,8 @@
 2. Read `templates/index.html` and `static/shield-client.js` together for browser validation, derivation, key generation, encryption, and recovery states.
 3. Read `app.py` for the strict request envelope, quota, ciphertext validation, and homomorphic calculation.
 4. Read `tests/test_app.py` and `tools/verify-workflows.mjs` for executable backend and browser acceptance criteria.
-5. Finish with `Dockerfile`, `.github/workflows/ci.yml`, `.github/workflows/fly-deploy.yml`, `fly.toml`, and `docs/TESTING.md` for the supply chain, release gate, and measured evidence.
+5. Read `docs/USAGE.md` for the complete user/operator flow.
+6. Finish with `Dockerfile`, `.github/workflows/ci.yml`, `.github/workflows/fly-deploy.yml`, `fly.toml`, and `docs/TESTING.md` for the supply chain, release identity, and measured evidence.
 
 ## Explain the demo in one minute
 
@@ -43,13 +44,13 @@ Paillier supports addition of encrypted values and multiplication of an encrypte
 
 ## Threat boundary
 
-| Protected in this demo | Still exposed or unproved |
-|---|---|
-| Raw form values are absent from the evaluator request | Network metadata and timing remain visible |
-| Private key stays in browser memory | A compromised server could ship malicious browser JavaScript |
-| Server stores no application data | Reverse proxies/platform logs need separate review |
-| Strict JSON allowlist rejects accidental raw fields | Server cannot prove ciphertext plaintexts came from the displayed ranges |
-| CSP blocks third-party scripts and framing | 1024-bit parameters are for demo performance, not production strength |
+| Protected in this demo                                    | Still exposed or unproved                                                               |
+| --------------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| Raw form values are absent from the evaluator request     | Network metadata and timing remain visible                                              |
+| Private key stays in browser memory                       | A compromised server could ship malicious browser JavaScript                            |
+| Server stores no application data                         | Reverse proxies/platform logs need separate review                                      |
+| Strict JSON allowlist rejects accidental raw fields       | Server cannot prove ciphertext plaintexts came from the displayed ranges                |
+| CSP blocks third-party scripts and framing                | 1024-bit parameters are for demo performance, not production strength                   |
 | Request size and process-local budget bound basic CPU use | Multi-machine quotas and sustained denial-of-service protection require an edge control |
 
 ## Runtime, types, and lifecycle
@@ -60,7 +61,7 @@ The server uses an application factory for isolated tests, a dataclass-style val
 
 ## CI, deployment, and evidence
 
-CI installs pinned Python and Node tooling, audits the runtime dependency sets, runs seven backend tests, starts the real Flask evaluator, drives the ten-group portable-Chromium flow, and builds the production container. The manual Fly workflow reuses that CI job before deployment. Fly runs one unprivileged Gunicorn process with four threads, HTTPS routing, a health check, and scale-to-zero. `docs/TESTING.md` is the canonical testing artifact; browser JSON and screenshots support it, while the README GIF communicates the flow. Payload-free JSON request events go to the Flask/Gunicorn logs, and `X-Request-ID` plus `Server-Timing` connect an observed response to its route, status, and duration without logging private material.
+CI installs pinned Python and Node tooling, runs Ruff/ESLint/Prettier and dependency audits, executes eight backend tests plus the bounded-load assertion, starts the real Flask evaluator, drives the sixteen-group portable-Chromium flow, and builds the production container with its source commit. The manual Fly workflow reuses that CI job before deployment. Fly runs one unprivileged Gunicorn process with four threads, HTTPS routing, a health check, and scale-to-zero. `docs/TESTING.md` is the canonical testing artifact; browser JSON and screenshots support it, while the README GIF communicates the flow. Payload-free JSON request events go to the Flask/Gunicorn logs, and `X-Request-ID` plus `Server-Timing` connect an observed response to its route, status, and duration without logging private material.
 
 ## Questions a reviewer may ask
 

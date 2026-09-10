@@ -5,18 +5,20 @@ sends only a public modulus plus encrypted derived indicator values. The server
 computes a transparent weighted sum without seeing raw financial values.
 Educational demo only: never a lending, eligibility, or financial-advice tool.
 """
+
 from __future__ import annotations
 
 import json
 import logging
 import os
+import re
 import secrets
 import time
 from collections import defaultdict, deque
+from collections.abc import Mapping
 from dataclasses import dataclass
 from math import gcd
 from threading import Lock
-from typing import Mapping
 
 import phe as paillier
 from flask import Flask, g, jsonify, render_template, request
@@ -32,6 +34,7 @@ PAILLIER_MODULUS_BITS = 1024
 MAX_CIPHERTEXT_CHARS = 700
 MAX_REQUEST_BYTES = 12_000
 DEFAULT_EVALUATIONS_PER_HOUR = 8
+COMMIT_PATTERN = re.compile(r"^[0-9a-f]{40}$")
 
 
 class ValidationError(ValueError):
@@ -66,7 +69,7 @@ class EncryptedEvaluation:
     values: Mapping[str, paillier.EncryptedNumber]
 
     @classmethod
-    def from_payload(cls, raw: object) -> "EncryptedEvaluation":
+    def from_payload(cls, raw: object) -> EncryptedEvaluation:
         if not isinstance(raw, dict):
             raise ValidationError("Send a JSON object.")
         if set(raw) != {"public_key", "encrypted_values"}:
@@ -117,10 +120,17 @@ def create_app(*, evaluation_limit: int | None = None) -> Flask:
     app = Flask(__name__)
     app.logger.setLevel(logging.INFO)
     app.config["MAX_CONTENT_LENGTH"] = MAX_REQUEST_BYTES
-    limit = evaluation_limit if evaluation_limit is not None else int(os.getenv("SHIELDAI_EVALUATIONS_PER_HOUR", DEFAULT_EVALUATIONS_PER_HOUR))
+    limit = (
+        evaluation_limit
+        if evaluation_limit is not None
+        else int(os.getenv("SHIELDAI_EVALUATIONS_PER_HOUR", DEFAULT_EVALUATIONS_PER_HOUR))
+    )
     if limit < 1:
         raise ValueError("SHIELDAI_EVALUATIONS_PER_HOUR must be positive.")
     limiter = RequestLimiter(limit)
+    source_commit = os.getenv("SHIELDAI_SOURCE_COMMIT", "unknown").strip().lower()
+    if not COMMIT_PATTERN.fullmatch(source_commit):
+        source_commit = "unknown"
     app.extensions["private_evaluation_limiter"] = limiter
 
     @app.before_request
@@ -178,7 +188,12 @@ def create_app(*, evaluation_limit: int | None = None) -> Flask:
             "persistence": "none",
             "raw_input_handling": "not accepted by the evaluator",
             "evaluation_budget": f"{limit} requests per client per hour",
+            "source_commit": source_commit,
         }
+
+    @app.get("/version")
+    def version():
+        return {"service": "shieldai", "source_commit": source_commit}
 
     @app.post("/api/v1/private-evaluations")
     def private_evaluation():

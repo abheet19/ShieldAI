@@ -24,12 +24,14 @@ def sample_values() -> dict[str, int]:
     }
 
 
-def test_health_describes_browser_private_key_boundary(caplog):
+def test_health_describes_browser_private_key_boundary(caplog, monkeypatch):
+    monkeypatch.delenv("SHIELDAI_SOURCE_COMMIT", raising=False)
     app = create_app()
     caplog.set_level(logging.INFO, logger=app.logger.name)
     response = app.test_client().get("/health")
     assert response.status_code == 200
     assert response.json["raw_input_handling"] == "not accepted by the evaluator"
+    assert response.json["source_commit"] == "unknown"
     assert response.headers["X-Frame-Options"] == "DENY"
     assert "frame-ancestors 'none'" in response.headers["Content-Security-Policy"]
     assert len(response.headers["X-Request-ID"]) == 16
@@ -41,10 +43,25 @@ def test_health_describes_browser_private_key_boundary(caplog):
     assert set(event) == {"event", "request_id", "method", "route", "status", "duration_ms"}
 
 
+def test_release_identity_accepts_only_a_full_git_sha(monkeypatch):
+    commit = "a" * 40
+    monkeypatch.setenv("SHIELDAI_SOURCE_COMMIT", commit.upper())
+    response = create_app().test_client().get("/version")
+    assert response.status_code == 200
+    assert response.json == {"service": "shieldai", "source_commit": commit}
+    assert response.headers["Cache-Control"] == "no-store"
+
+    monkeypatch.setenv("SHIELDAI_SOURCE_COMMIT", "not-a-commit")
+    assert create_app().test_client().get("/version").json["source_commit"] == "unknown"
+
+
 def test_rejects_raw_incomplete_or_expensive_key_envelopes():
     client = create_app().test_client()
     assert client.post("/api/v1/private-evaluations", json={"annual_income": 85_000}).status_code == 400
-    assert client.post("/api/v1/private-evaluations", json={"public_key": {"n": "7"}, "encrypted_values": {}}).status_code == 400
+    assert (
+        client.post("/api/v1/private-evaluations", json={"public_key": {"n": "7"}, "encrypted_values": {}}).status_code
+        == 400
+    )
     too_large_key = str((1 << 2048) - 159)
     payload = {"public_key": {"n": too_large_key}, "encrypted_values": {field: "1" for field in FEATURES}}
     assert client.post("/api/v1/private-evaluations", json=payload).status_code == 400
@@ -85,6 +102,10 @@ def test_rejects_raw_fields_alongside_valid_ciphertexts():
 
 
 def test_oversized_request_never_reaches_evaluator():
-    response = create_app().test_client().post("/api/v1/private-evaluations", data="x" * 12001, content_type="application/json")
+    response = (
+        create_app()
+        .test_client()
+        .post("/api/v1/private-evaluations", data="x" * 12001, content_type="application/json")
+    )
     assert response.status_code == 413
     assert "12000 bytes" in response.json["error"]

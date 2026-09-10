@@ -1,16 +1,36 @@
 {
   "name": "shieldai-demo-tools",
   "private": true,
-  "description": "Dev-only tooling for recording the README demo GIF. Not part of the Flask app.",
+  "description": "Verification tooling for the ShieldAI browser-private-key demo.",
   "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
   "scripts": {
     "record-demo": "node tools/record-demo.mjs",
-    "verify:browser": "node tools/verify-workflows.mjs"
-  },
-  "devDependencies": {
-    "playwright": "^1.63.0"
+    "verify:browser": "node tools/verify-workflows.mjs",
+    "verify:load": "python -m tools.bounded_load",
+    "lint:js": "eslint eslint.config.js static/shield-client.js tools/*.mjs",
+    "lint:py": "python -m ruff check app.py tests tools",
+    "format:check": "npm run format:js:check && npm run format:py:check",
+    "format:js:check": "prettier --check static/shield-client.js static/css/style.css tools/*.mjs eslint.config.js package.json .github/workflows/*.yml README.md CONTEXT.md MEMORY.md docs/*.md",
+    "format:py:check": "python -m ruff format --check app.py tests tools",
+    "format": "npm run format:js && npm run format:py",
+    "format:js": "prettier --write static/shield-client.js static/css/style.css tools/*.mjs eslint.config.js package.json .github/workflows/*.yml README.md CONTEXT.md MEMORY.md docs/*.md",
+    "format:py": "python -m ruff format app.py tests tools",
+    "test": "python -m pytest -q --tb=short",
+    "check": "npm run lint:js && npm run lint:py && npm run format:check && npm test",
+    "prepare": "husky"
   },
   "dependencies": {
     "paillier-bigint": "^3.0.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "10.0.1",
+    "eslint": "10.10.0",
+    "globals": "17.12.0",
+    "husky": "9.1.7",
+    "playwright": "^1.63.0",
+    "prettier": "3.9.6"
   }
 }

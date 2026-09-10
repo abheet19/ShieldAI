@@ -1,0 +1,11 @@
+#!/usr/bin/env sh
+set -eu
+
+if [ -x ".venv/Scripts/python.exe" ]; then
+  PATH="$(pwd)/.venv/Scripts:$PATH"
+elif [ -x ".venv/bin/python" ]; then
+  PATH="$(pwd)/.venv/bin:$PATH"
+fi
+export PATH
+
+npm run check

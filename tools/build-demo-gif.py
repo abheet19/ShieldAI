@@ -10,17 +10,17 @@ a 16-second demo costs only ~26 distinct frames.
 
 from __future__ import annotations
 
-import re
 import json
+import re
 from pathlib import Path
 
 from PIL import Image
 
 FRAMES_DIR = Path("docs/demo/frames")
 OUT_PATH = Path("docs/demo/shieldai-demo.gif")
-TARGET_WIDTH = 900          # GitHub renders README images at roughly 850px
-TICK_MS = 125               # 8 fps base rate; plenty for UI motion
-MAX_COLORS = 128            # the steel-blue theme is a narrow palette anyway
+TARGET_WIDTH = 900  # GitHub renders README images at roughly 850px
+TICK_MS = 125  # 8 fps base rate; plenty for UI motion
+MAX_COLORS = 128  # the steel-blue theme is a narrow palette anyway
 
 FRAME_RE = re.compile(r"^f(\d+)_h(\d+)\.png$")
 

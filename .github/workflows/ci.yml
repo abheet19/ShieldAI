@@ -23,15 +23,16 @@ jobs:
           node-version: "22"
       - run: python -m pip install -r requirements-dev.txt
       - name: Audit Python runtime dependencies
-        run: |
-          python -m pip install pip-audit==2.9.0
-          python -m pip_audit -r requirements.txt
-      - run: python -m pytest -q --tb=short
+        run: python -m pip_audit -r requirements.txt
       - name: Install and audit browser verification tooling
         run: |
           npm ci
           npm audit --audit-level=high
-          npx playwright install --with-deps chromium
+      - name: Run lint, format, backend, and bounded-load gates
+        run: |
+          npm run check
+          npm run verify:load
+      - run: npx playwright install --with-deps chromium
       - name: Run real browser-key encrypted workflow
         run: |
           python -m flask --app app run --host 127.0.0.1 --port 5055 > /tmp/shieldai-flask.log 2>&1 &
@@ -42,8 +43,8 @@ jobs:
             sleep 1
           done
           VERIFICATION_DIR=browser-results npm run verify:browser
-      - name: Build production image
-        run: docker build --tag shieldai-ci .
+      - name: Build production image with release identity
+        run: docker build --build-arg SOURCE_COMMIT="${GITHUB_SHA}" --tag shieldai-ci .
       - uses: actions/upload-artifact@v4
         if: always()
         with:

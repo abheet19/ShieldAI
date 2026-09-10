@@ -20,6 +20,6 @@ jobs:
       - uses: actions/checkout@v4
       - uses: superfly/flyctl-actions/setup-flyctl@master
       - name: Deploy the fully verified revision
-        run: flyctl deploy --remote-only --app shieldai-abheet19
+        run: flyctl deploy --remote-only --build-arg SOURCE_COMMIT="${GITHUB_SHA}" --app shieldai-abheet19
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}

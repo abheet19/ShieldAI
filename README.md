@@ -4,7 +4,11 @@
 
 # ShieldAI — browser-private-key homomorphic-computation demo
 
+[![Live demo](https://img.shields.io/badge/live-Fly.io-2563eb?style=for-the-badge)](https://shieldai-abheet19.fly.dev)
+
 </div>
+
+**Live demo:** https://shieldai-abheet19.fly.dev · **Release identity:** https://shieldai-abheet19.fly.dev/version
 
 ![ShieldAI encrypted browser flow](docs/demo/shieldai-demo.gif)
 
@@ -61,8 +65,8 @@ Open `http://127.0.0.1:5000`. `GET /health` reports the browser-private-key arch
 
 ## Deployment notes
 
-The current Fly deployment is a demonstrator. Before a wider launch, add edge rate limits, authentication if it is not a public demo, retained monitoring and alerting for the current payload-free events, an accessibility review, a 2048-bit performance/security decision, external cryptographic review, threat modeling, model governance, fairness assessment, and legal/compliance review.
+The public Fly deployment is an educational demonstrator. Its `/version` response exposes the exact 40-character source commit baked into the image; a configured URL alone is not release proof. Before a wider launch, add edge rate limits, authentication if it is not a public demo, retained monitoring and alerting for the current payload-free events, an independent accessibility review, a 2048-bit performance/security decision, external cryptographic review, threat modeling, model governance, fairness assessment, and legal/compliance review.
 
 ## Verification
 
-See [the reproducible testing guide](docs/TESTING.md) for UI scenarios, boundary checks and honest limits, and the [study guide](docs/STUDY_GUIDE.md) for the protocol, arithmetic and production tradeoffs. The patched 2026-09-09 runtime dependency set passed all seven backend tests and a current `pip-audit` reported no known vulnerabilities. The production image installs only Flask, Gunicorn and `phe`; moving the historical CSV/regression stack out of the image reduced the measured local image size from **154.8 MB to 48.5 MB**. The ten-group real browser gate also generates a key, posts four ciphertexts, runs Flask/Python homomorphic arithmetic, decrypts locally, exercises recovery states, switches theme, and checks the responsive layout. The exact release image scored **100/100** in Lighthouse performance, accessibility, best practices, and SEO; observed FCP was 1,302 ms, LCP 1,383 ms, TBT 0 ms, and CLS 0.000. Glass CSS and Paillier browser code are vendored with the application, so the deployed design does not depend on mutable CDN `@main` assets.
+See [the usage guide](docs/USAGE.md), [reproducible testing guide](docs/TESTING.md), and [study guide](docs/STUDY_GUIDE.md). The 2026-09-10 candidate passed eight backend tests, sixteen real-browser flow groups, the 30-request bounded concurrency probe, Ruff, ESLint, Prettier, npm audit, and pip-audit. The browser gate covers every visible CTA, keyboard use, strict payload shape, stale-result recovery, 320 px layout, minimum target size, and a measured scroll sample. Lighthouse 13.4.1 scored **100 performance / 100 accessibility / 100 best practices / 100 SEO** on the local candidate: FCP 1.3 s, LCP 1.4 s, TBT 0 ms, and CLS 0. These are controlled observations, not a formal WCAG certification or a device-fleet guarantee. Glass CSS and Paillier browser code are vendored, so runtime design and cryptography do not depend on mutable CDN assets.

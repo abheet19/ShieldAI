@@ -1,45 +1,47 @@
-# ShieldAI — sanity, acceptance, and release guide
+# ShieldAI - sanity, acceptance, and release guide
 
-> Snapshot: 10 September 2026 IST. Run this against disposable or synthetic data. Save the branch, commit, complete dirty-path list, command, exit code, environment, and artifact hashes with every result.
+> Snapshot: 10 September 2026 IST. Use disposable synthetic data. A successful encrypted calculation verifies the demonstrator flow; it does not validate the scoring formula as a real lending model.
 
-## Before running
-
-Use synthetic values only. Inspect browser network and server logs while testing the privacy boundary. Never attach real financial data. A successful encrypted calculation does not validate the formula as a decision model.
+## Reproduce the reviewed candidate
 
 ```powershell
 Set-Location 'D:\Code\ShieldAI'
 .\.venv\Scripts\python.exe -m pip install -r requirements-dev.txt
-.\.venv\Scripts\python.exe -m pytest -q
 npm ci
+npm run check
+.\.venv\Scripts\python.exe -m tools.bounded_load
 npm run verify:browser
-docker build -t shieldai-local .
 ```
 
-## Product sanity checklist
+Run the container check where Docker is available:
 
-- [ ] Empty/malformed/range failures occur before encryption/network; example population never bypasses consent.
-- [ ] Network request contains only public modulus and four ciphertext strings; logs contain no inputs/keys/decrypted score.
-- [ ] Real browser encryption -> real Flask arithmetic -> local decryption yields 37.5/100.
-- [ ] Receipt, theme, 429/retry, 390 px, reload-clears-result, and `/health` flows work.
-- [ ] Oversized/count/string/modulus/range/coprimality checks and the eight-per-process quota fail boundedly.
-- [ ] Production image runs unprivileged and the dependency audits apply to the exact image inputs.
+```powershell
+docker build --build-arg SOURCE_COMMIT=(git rev-parse HEAD) -t shieldai-local .
+docker run --rm -p 8080:8080 shieldai-local
+```
 
-## Retained evidence for the current candidate
+## Reviewed acceptance evidence
 
-- Seven pytest tests and ten browser groups passed; current browser JSON records zero errors and exact 37.5/100.
-- Retained image size/audit/Lighthouse/quota evidence is bounded and dated in Study Pack 08.
-- Fly v8/public `master` are older `e3e1f0d...`; the branch has no upstream. Reviewed candidate `a10775a...` is three commits ahead, this documentation update adds one more unpublished commit, and neither is deployed.
+- [x] Eight Flask tests cover health/version, valid encrypted evaluation, consent, malformed ciphertext, payload size, process quota, headers, and configured origin allowlisting.
+- [x] Sixteen Playwright workflow groups cover empty and invalid form states, consent, keyboard use, theme persistence, rate-limit and malformed-response recovery, the full encrypted round trip, narrow-view layout, scroll responsiveness, receipt details, reset, and service identity.
+- [x] The browser sends only the public modulus and four ciphertext strings; the synthetic raw income value is absent from the request.
+- [x] The real browser-to-Flask-to-browser encrypted round trip returns and locally decrypts the documented synthetic score of 37.5/100.
+- [x] A bounded 30-request load check produces exactly eight successful evaluations and 22 rate-limited responses for the per-process quota.
+- [x] The final controlled local Lighthouse run scored 100 in Performance, Accessibility, Best Practices, and SEO. This is automated evidence, not WCAG certification.
+- [x] Dependency audits report no known vulnerabilities in the locked npm tree or Python runtime requirements.
 
-## Release sequence
+The durable machine-readable artifacts and screenshots are retained under `verification-work/portfolio-release-20260910/ShieldAI`. Each result applies only to the recorded tree and environment.
 
-1. Review the three candidate commits through `a10775a...` plus this documentation-only commit and choose/configure a tracked publication path.
-2. Run reusable CI and production image at that exact commit.
-3. Deploy with approval; record source/image/release/machine and synthetic health/encrypted/theme/mobile smoke.
-4. Retain v8; require stronger parameters, distributed controls, monitoring, and independent reviews before wider use.
+## Exact release sequence
 
-## Claims this guide does not establish
+1. Commit the reviewed tree and record its full 40-character SHA.
+2. Push that commit through GitHub CI. Require tests, audits, browser checks, bounded load, and a production Docker build to pass for the same SHA.
+3. Deploy with `SOURCE_COMMIT=<full SHA>` and retain the Fly release version and image reference.
+4. Require public `/version` and `/health` to return that exact SHA, then run the public browser suite.
 
-- No production cryptographic assurance, malicious-client correctness, identity/origin binding, distributed quota, external audit, or fairness/legal basis.
-- No AI/model behavior; current candidate is not live.
+## Scope and limitations
 
-A green local run is evidence for the exact tested tree. Call a feature deployed only after recording `source commit -> CI run -> image/release -> post-deploy smoke` for the same bytes.
+- ShieldAI is an educational privacy-preserving calculation demonstrator, not a production credit-decision system.
+- It has no malicious-client proof, identity-bound consent, distributed rate limiting, independent cryptographic audit, fairness validation, or legal basis for real lending decisions.
+- The current Paillier parameters are intentionally small enough for an understandable browser demo and are not suitable for protecting real financial data.
+- A green check applies to the exact recorded commit. Deployment is established only by the matching public source SHA and post-deploy evidence.
