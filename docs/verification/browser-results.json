@@ -1,0 +1,18 @@
+{
+  "at": "2026-09-09T20:31:50.238Z",
+  "environment": "local real Flask evaluator; 429 response simulation explicitly marked",
+  "durationMs": 256,
+  "checks": [
+    "empty form denied before encryption/network",
+    "blank zero-minimum field not coerced into zero",
+    "synthetic example fills fields without bypassing consent",
+    "consent required",
+    "range constraint blocks provider work",
+    "real browser encryption -> real Flask arithmetic -> browser decryption:37.5/100",
+    "privacy receipt expands/collapses",
+    "theme choice updates the rendered ground",
+    "429 simulated browser error clears old result and re-enables submit",
+    "390px mobile layout has no horizontal overflow; reload clears plaintext result"
+  ],
+  "errors": []
+}
