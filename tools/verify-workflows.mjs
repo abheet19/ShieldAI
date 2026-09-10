@@ -59,8 +59,12 @@ async function fillValidExample() {
   }
 }
 
+const baseUrl = process.env.SHIELDAI_BASE_URL || "http://127.0.0.1:5055";
+const verificationEnvironment = process.env.SHIELDAI_BASE_URL
+  ? `deployed HTTPS evaluator at ${new URL(baseUrl).origin}; recovery responses explicitly simulated`
+  : "local real Flask evaluator; recovery responses explicitly simulated";
+
 try {
-  const baseUrl = process.env.SHIELDAI_BASE_URL || "http://127.0.0.1:5055";
   const response = await page.goto(baseUrl, { waitUntil: "networkidle" });
   assert.equal(response.status(), 200);
   assert.match(await page.title(), /ShieldAI/);
@@ -282,8 +286,7 @@ try {
   assert.deepEqual(errors, []);
   const report = {
     at: new Date().toISOString(),
-    environment:
-      "local real Flask evaluator; 429 and malformed-success responses explicitly simulated",
+    environment: verificationEnvironment,
     checks,
     errors,
     metrics: {
