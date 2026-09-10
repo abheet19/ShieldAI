@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" role="img" aria-label="ShieldAI">
+  <title>ShieldAI</title>
+  <defs>
+    <linearGradient id="face" x1="0" y1="0" x2=".4" y2="1">
+      <stop stop-color="#B9D1FF"/>
+      <stop offset=".5" stop-color="#7EA8F8"/>
+      <stop offset="1" stop-color="#476FC3"/>
+    </linearGradient>
+    <linearGradient id="flank" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#34518E"/>
+      <stop offset="1" stop-color="#15274D"/>
+    </linearGradient>
+  </defs>
+  <rect width="256" height="256" rx="56" fill="#080D19"/>
+  <!-- Four encrypted inputs converge inside the shield; plaintext stays outside the service. -->
+  <path d="M128 39 205 76v52c0 47-29 75-77 92-48-17-77-45-77-92V76Z" fill="#02050B" transform="translate(11 11)"/>
+  <path d="M128 39 205 76v52c0 47-29 75-77 92-48-17-77-45-77-92V76Z" fill="url(#flank)" transform="translate(6 6)"/>
+  <path d="M128 39 205 76v52c0 47-29 75-77 92-48-17-77-45-77-92V76Z" fill="url(#face)"/>
+  <g fill="#0B1428">
+    <circle cx="95" cy="105" r="9"/><circle cx="128" cy="89" r="9"/>
+    <circle cx="161" cy="105" r="9"/><circle cx="128" cy="130" r="11"/>
+  </g>
+  <path d="M95 105 128 130m0-41v41m33-25-33 25m0 0v34" fill="none" stroke="#0B1428" stroke-width="7" stroke-linecap="round"/>
+  <circle cx="128" cy="171" r="12" fill="#EEF4FF"/>
+  <path d="M89 75c22-17 48-22 76-10" fill="none" stroke="#EEF4FF" stroke-opacity=".46" stroke-width="6" stroke-linecap="round"/>
+</svg>

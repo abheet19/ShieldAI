@@ -5,7 +5,7 @@
 .nav-actions { display: flex; align-items: center; gap: var(--sp-3); }
 .nav-actions p { margin: 0; }
 .brand { display: inline-flex; align-items: center; gap: var(--sp-2); color: var(--ink); font-size: var(--fs-2); font-weight: 650; text-decoration: none; }
-.brand-mark { display: grid; place-items: center; width: 2rem; height: 2rem; border: 1px solid var(--accent); border-radius: var(--r-1); color: var(--accent); }
+.brand-mark { display: block; width: 2rem; height: 2rem; border-radius: var(--r-1); }
 .nav-note, .site-footer, .eyebrow { color: var(--ink-2); font-size: var(--fs-0); }
 .site-main { padding-block: clamp(2.5rem, 7vw, 5rem); }
 .site-footer { padding-block: var(--sp-5); border-top: 1px solid var(--line); text-align: center; }

@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% block title %}ShieldAI — private evaluation demo{% endblock %}</title>
   <meta name="description" content="A browser-private-key Paillier homomorphic encryption demonstration.">
-  <link rel="icon" href="{{ url_for('static', filename='favicon.svg') }}" type="image/svg+xml">
+  <link rel="icon" href="{{ url_for('static', filename='brand/mark.svg') }}" type="image/svg+xml">
   <link rel="stylesheet" href="/static/vendor/glass/tokens.css">
   <link rel="stylesheet" href="/static/vendor/glass/themes/shield.css">
   <link rel="stylesheet" href="/static/vendor/glass/primitives.css">
@@ -14,7 +14,7 @@
 <body class="glass-page glass-atmosphere">
   <div class="site-shell">
     <header class="site-nav">
-      <a class="brand" href="{{ url_for('home') }}" aria-label="ShieldAI home"><span class="brand-mark" aria-hidden="true">◇</span><span>ShieldAI</span></a>
+      <a class="brand" href="{{ url_for('home') }}" aria-label="ShieldAI home"><img class="brand-mark" src="{{ url_for('static', filename='brand/mark.svg') }}" alt=""><span>ShieldAI</span></a>
       <div class="nav-actions"><p class="nav-note">Paillier · browser-held private key</p><button id="theme-toggle" class="btn btn-ghost" type="button" aria-pressed="false">Dark theme</button></div>
     </header>
     <main class="site-main">{% block content %}{% endblock %}</main>

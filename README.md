@@ -1,4 +1,10 @@
+<div align="center">
+
+<img src="brand/mark.svg" alt="ShieldAI mark" width="112">
+
 # ShieldAI — browser-private-key homomorphic-computation demo
+
+</div>
 
 ![ShieldAI encrypted browser flow](docs/demo/shieldai-demo.gif)
 
