@@ -96,6 +96,14 @@ try {
     await page.locator("#annual_income").getAttribute("aria-invalid"),
     "true",
   );
+  assert.equal(
+    await page.locator("#result-state").getAttribute("role"),
+    "status",
+  );
+  assert.equal(
+    await page.locator("#result-state").getAttribute("aria-label"),
+    "Error",
+  );
   passed(
     "empty form is denied, focused, and marked invalid before encryption or network work",
   );
