@@ -137,6 +137,10 @@ h2 {
   justify-content: space-between;
   gap: var(--sp-3);
   margin-bottom: var(--sp-4);
+  min-width: 0;
+}
+.section-heading > * {
+  min-width: 0;
 }
 .section-heading h2 {
   margin-bottom: 0;
@@ -260,10 +264,20 @@ h2 {
   .hero,
   .workflow-grid,
   .fields {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
   .hero {
     gap: var(--sp-4);
+  }
+  .section-heading {
+    flex-wrap: wrap;
+  }
+  .section-heading .chip {
+    max-width: 100%;
+    white-space: normal;
+  }
+  .method-card code {
+    overflow-wrap: anywhere;
   }
   .fields label:last-child {
     grid-column: auto;

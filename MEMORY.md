@@ -35,5 +35,6 @@ Run `npm run check`, `npm run verify:load`, `npm audit --audit-level=high`, `pyt
 - Expanded browser verification from ten to sixteen groups and added bounded concurrency evidence.
 - Removed startup opacity animation so primary content paints immediately.
 - Added complete usage, testing, study, and AI context handoffs.
+- Fixed Linux CI's 320 px font-metric overflow by allowing dense section headings and chips to wrap; the browser workflow was repeated five times locally before republishing.
 
 Retired wizard/CSV/regression files remain tracked as historical, non-runtime material for compatibility and audit history. They are absent from the Docker image and must not be reconnected to the product path.

@@ -1,18 +1,33 @@
 {
-  "at": "2026-09-09T20:31:50.238Z",
-  "environment": "local real Flask evaluator; 429 response simulation explicitly marked",
-  "durationMs": 256,
+  "at": "2026-09-10T17:46:51.789Z",
+  "environment": "local real Flask evaluator; 429 and malformed-success responses explicitly simulated",
   "checks": [
-    "empty form denied before encryption/network",
-    "blank zero-minimum field not coerced into zero",
-    "synthetic example fills fields without bypassing consent",
-    "consent required",
-    "range constraint blocks provider work",
-    "real browser encryption -> real Flask arithmetic -> browser decryption:37.5/100",
-    "privacy receipt expands/collapses",
-    "theme choice updates the rendered ground",
-    "429 simulated browser error clears old result and re-enables submit",
-    "390px mobile layout has no horizontal overflow; reload clears plaintext result"
+    "landmarks, heading hierarchy, and every primary CTA have accessible names",
+    "release identity endpoint is healthy and schema-bound",
+    "empty form is denied, focused, and marked invalid before encryption or network work",
+    "blank zero-minimum field is not coerced into zero",
+    "synthetic example fills fields, preserves consent, and moves focus to consent",
+    "explicit educational-demo consent is required",
+    "range validation blocks cryptographic and provider work",
+    "real browser encryption, Flask ciphertext arithmetic, and local decryption produce 37.5/100",
+    "privacy receipt opens and closes from the keyboard",
+    "theme CTA is keyboard-operable and persists across reload",
+    "429 recovery clears stale results and restores the submit CTA",
+    "malformed-success recovery is bounded and retryable",
+    "bounded 60-frame scroll-jank sample recorded",
+    "320px mobile layout has no horizontal overflow",
+    "mobile interactive targets meet the 24 CSS-pixel minimum",
+    "brand-home CTA returns to a clean, non-persistent form"
   ],
-  "errors": []
+  "errors": [],
+  "metrics": {
+    "evaluationDurationMs": 164,
+    "navigation": {
+      "domContentLoadedMs": 0,
+      "loadMs": 0,
+      "transferBytes": 6324
+    },
+    "scrollP95Ms": 18.3,
+    "scrollLongFrames": 0
+  }
 }
