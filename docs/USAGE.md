@@ -2,7 +2,7 @@
 
 ## Try the public demo
 
-Open <https://shieldai-abheet19.fly.dev>. Use synthetic values only. Select **Use synthetic example**, review the five values, confirm the educational-demo notice, and select **Encrypt locally and evaluate**. A successful run displays **37.5/100** for the built-in example. Expand **View the privacy receipt** to inspect the browser/server boundary. The theme control persists only the theme name; refreshing clears form values, private key, and result.
+Open <https://shieldai-abheet19.fly.dev>. Use synthetic values only. Select **New evaluation** from the Overview screen, select **Use synthetic example**, review the five values, confirm the educational-demo notice, and select **Encrypt locally and evaluate**. A successful run displays **37.5/100** for the built-in example, with a contribution breakdown and a privacy receipt in the same drawer. The theme control persists across reloads; the evaluation itself only persists if **Keep evaluation history** is on in Settings (the default) — either way, the private key that ran it is discarded the moment decryption finishes, refresh or not.
 
 ## What to inspect
 

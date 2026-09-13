@@ -17,6 +17,8 @@ page.on("request", (request) => {
 });
 const baseUrl = process.env.SHIELDAI_BASE_URL || "http://127.0.0.1:5055";
 await page.goto(`${baseUrl}/`, { waitUntil: "networkidle" });
+await page.locator("[data-open-new-eval]:visible").first().click();
+await page.locator("#newEvalDrawer.is-open").waitFor();
 await page.locator("#annual_income").fill("85000");
 await page.locator("#existing_debt").fill("12000");
 await page.locator("#credit_utilization_pct").fill("30");
@@ -24,9 +26,9 @@ await page.locator("#employment_years").fill("5");
 await page.locator("#requested_loan_amount").fill("20000");
 await page.locator("#demo-consent").check();
 await page.locator("#evaluate-button").click();
-await page.locator("#result-content:not([hidden])").waitFor({ timeout: 60000 });
-const result = await page.locator("#indicator-value").textContent();
-const state = await page.locator("#phase-detail").textContent();
+await page.locator("#newEvalResult:not([hidden])").waitFor({ timeout: 60000 });
+const result = await page.locator(".result-banner-score").textContent();
+const state = await page.locator("#procPhase").textContent();
 if (
   !evaluationRequest ||
   !evaluationRequest.public_key ||

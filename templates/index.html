@@ -1,43 +1,547 @@
 {% extends "base.html" %}
-{% block title %}ShieldAI — privacy-preserving precheck{% endblock %}
-{% block content %}
-<section class="hero">
-  <div>
-    <p class="eyebrow">Privacy-preserving workflow</p>
-    <h1>Check a synthetic affordability indicator without sharing raw financial inputs.</h1>
-    <p class="lede">Your browser derives and encrypts four indicators. The evaluator receives ciphertexts and returns an encrypted sum. The private key never leaves this tab.</p>
-  </div>
-  <aside class="protocol-card glass" aria-label="Privacy protocol">
-    <p class="protocol-title">What crosses the network</p>
-    <ol><li>Public Paillier modulus</li><li>Four encrypted derived indicators</li><li>Encrypted result</li></ol>
-    <p class="protocol-foot">Raw income, debt, utilization, loan amount, and the private key remain in the browser.</p>
+{% block title %}ShieldAI — private evaluation workspace{% endblock %}
+{% block body %}
+<svg hidden aria-hidden="true">
+  <symbol id="i-grid" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="3.5" y="3.5" width="7.2" height="7.2" rx="1.4"/><rect x="13.3" y="3.5" width="7.2" height="7.2" rx="1.4"/>
+    <rect x="3.5" y="13.3" width="7.2" height="7.2" rx="1.4"/><rect x="13.3" y="13.3" width="7.2" height="7.2" rx="1.4"/>
+  </symbol>
+  <symbol id="i-list" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+    <line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/>
+  </symbol>
+  <symbol id="i-gear" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="12" cy="12" r="3.1"/>
+    <path d="M19.4 13.6a7.6 7.6 0 0 0 0-3.2l1.8-1.4-1.8-3.1-2.1.7a7.6 7.6 0 0 0-2.8-1.6L14 2.5h-3.6l-.5 2.5a7.6 7.6 0 0 0-2.8 1.6l-2.1-.7-1.8 3.1L5 10.4a7.6 7.6 0 0 0 0 3.2l-1.8 1.4 1.8 3.1 2.1-.7a7.6 7.6 0 0 0 2.8 1.6l.5 2.5H14l.5-2.5a7.6 7.6 0 0 0 2.8-1.6l2.1.7 1.8-3.1z"/>
+  </symbol>
+  <symbol id="i-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="10.8" cy="10.8" r="6.8"/><line x1="20" y1="20" x2="15.6" y2="15.6"/>
+  </symbol>
+  <symbol id="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.4M12 19.1v2.4M4.2 4.2l1.7 1.7M18.1 18.1l1.7 1.7M2.5 12h2.4M19.1 12h2.4M4.2 19.8l1.7-1.7M18.1 5.9l1.7-1.7"/>
+  </symbol>
+  <symbol id="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M20.5 14.6A8.6 8.6 0 1 1 9.4 3.5a6.8 6.8 0 0 0 11.1 11.1z"/>
+  </symbol>
+  <symbol id="i-monitor" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="3" y="4.5" width="18" height="12" rx="1.6"/><line x1="8" y1="20" x2="16" y2="20"/><line x1="12" y1="16.5" x2="12" y2="20"/>
+  </symbol>
+  <symbol id="i-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+    <line x1="5" y1="5" x2="19" y2="19"/><line x1="19" y1="5" x2="5" y2="19"/>
+  </symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <line x1="12" y1="4.5" x2="12" y2="19.5"/><line x1="4.5" y1="12" x2="19.5" y2="12"/>
+  </symbol>
+  <symbol id="i-menu" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <line x1="3.5" y1="6.5" x2="20.5" y2="6.5"/><line x1="3.5" y1="12" x2="20.5" y2="12"/><line x1="3.5" y1="17.5" x2="20.5" y2="17.5"/>
+  </symbol>
+  <symbol id="i-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+    <polyline points="9 6 15 12 9 18"/>
+  </symbol>
+  <symbol id="i-key" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="8" cy="15.5" r="3.5"/><path d="M10.6 13 18.5 5.1M15.5 8 18 5.5M18 10.5l2.5-2.5"/>
+  </symbol>
+  <symbol id="i-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+    <line x1="6" y1="18" x2="18" y2="6"/><polyline points="9 6 18 6 18 15"/>
+  </symbol>
+  <symbol id="i-refresh" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M4 12a8 8 0 0 1 13.7-5.7L20 8.5"/><polyline points="20 4 20 8.5 15.5 8.5"/>
+    <path d="M20 12a8 8 0 0 1-13.7 5.7L4 15.5"/><polyline points="4 20 4 15.5 8.5 15.5"/>
+  </symbol>
+  <symbol id="i-trash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+    <line x1="4.5" y1="7" x2="19.5" y2="7"/><path d="M8 7V4.8A1.3 1.3 0 0 1 9.3 3.5h5.4A1.3 1.3 0 0 1 16 4.8V7"/>
+    <path d="M6.5 7 7.3 19a1.6 1.6 0 0 0 1.6 1.5h6.2A1.6 1.6 0 0 0 16.7 19L17.5 7"/>
+  </symbol>
+  <symbol id="i-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <polyline points="4.5 12.5 9.5 17.5 19.5 6.5"/>
+  </symbol>
+  <symbol id="i-lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="5" y="10.5" width="14" height="9.5" rx="1.8"/><path d="M8 10.5V7.8a4 4 0 0 1 8 0v2.7"/>
+  </symbol>
+  <symbol id="i-send" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M21 3 10.5 13.5"/><path d="M21 3 14.3 21 10.5 13.5 3 9.7z"/>
+  </symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="12" cy="12" r="8"/><polyline points="12 7.5 12 12 15.2 14"/>
+  </symbol>
+  <symbol id="i-alert" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M12 3.5 21.5 20h-19z"/><line x1="12" y1="9.3" x2="12" y2="13.6"/><circle cx="12" cy="16.6" r=".25"/>
+  </symbol>
+  <symbol id="i-github" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+    <path d="M12 2.2a9.8 9.8 0 0 0-3.1 19.1c.5.1.7-.2.7-.5v-1.8c-2.7.6-3.3-1.3-3.3-1.3-.4-1.1-1.1-1.4-1.1-1.4-.9-.6.1-.6.1-.6 1 .1 1.5 1 1.5 1 .9 1.5 2.4 1.1 2.9.8.1-.7.4-1.1.6-1.4-2.2-.2-4.5-1.1-4.5-4.8 0-1 .4-1.9 1-2.6-.1-.3-.4-1.3.1-2.6 0 0 .8-.3 2.7 1a9.3 9.3 0 0 1 4.9 0c1.9-1.3 2.7-1 2.7-1 .5 1.3.2 2.3.1 2.6.6.7 1 1.6 1 2.6 0 3.7-2.3 4.6-4.5 4.8.4.3.7.9.7 1.9v2.8c0 .3.2.6.7.5A9.8 9.8 0 0 0 12 2.2z"/>
+  </symbol>
+</svg>
+
+<div class="app" id="app">
+  <aside class="sidebar" id="sidebar">
+    <a class="side-brand" href="{{ url_for('home') }}" aria-label="ShieldAI home">
+      <span class="side-logo"><img src="{{ url_for('static', filename='brand/mark.svg') }}" alt=""></span>
+      <div class="side-brand-text">
+        <span class="side-name">ShieldAI</span>
+        <span class="side-sub">Private evaluation workspace</span>
+      </div>
+    </a>
+
+    <button class="cmdk-trigger" id="cmdkTrigger" type="button">
+      <svg><use href="#i-search"/></svg>
+      <span>Search or jump to…</span>
+      <kbd id="cmdkKbdHint">Ctrl K</kbd>
+    </button>
+
+    <nav class="side-nav" aria-label="Primary">
+      <div class="side-nav-label">Workspace</div>
+      <button class="nav-item is-active" data-screen="overview" type="button">
+        <svg><use href="#i-grid"/></svg>Overview
+      </button>
+      <button class="nav-item" data-screen="evaluations" type="button">
+        <svg><use href="#i-list"/></svg>Evaluations
+        <span class="nav-count" id="navEvalCount">0</span>
+      </button>
+      <div class="side-nav-label">Configuration</div>
+      <button class="nav-item" data-screen="settings" type="button">
+        <svg><use href="#i-gear"/></svg>Settings
+      </button>
+    </nav>
+
+    <div class="side-foot">
+      <div class="key-mini">
+        <span class="key-mini-dot" id="sideKeyDot"></span>
+        <div>
+          <div class="key-mini-t">Ephemeral key model</div>
+          <div class="key-mini-sub" id="sideKeyFp">no evaluation run yet</div>
+        </div>
+      </div>
+      <a class="eco-link" href="https://github.com/abheet19" target="_blank" rel="noopener noreferrer">
+        <svg><use href="#i-github"/></svg>Part of github.com/abheet19
+      </a>
+    </div>
   </aside>
-</section>
-<section class="workflow-grid" aria-label="Private evaluation">
-  <form id="private-evaluation-form" class="card form-card" novalidate>
-    <div class="section-heading"><div><p class="eyebrow">Step 1 of 3</p><h2>Enter values locally</h2></div><span class="chip chip-accent">No account · no storage</span></div>
-    <p class="card-note">Use only your own synthetic or non-sensitive test values. Inputs are validated in the browser and never posted as plain text.</p>
-    <div class="fields">
-      <label class="field-label" for="annual_income">Annual income (USD)<input class="field" id="annual_income" name="annual_income" type="number" inputmode="decimal" min="1" max="2000000" step="1" placeholder="85000" required></label>
-      <label class="field-label" for="existing_debt">Existing debt (USD)<input class="field" id="existing_debt" name="existing_debt" type="number" inputmode="decimal" min="0" max="2000000" step="1" placeholder="12000" required></label>
-      <label class="field-label" for="credit_utilization_pct">Credit utilization (%)<input class="field" id="credit_utilization_pct" name="credit_utilization_pct" type="number" inputmode="decimal" min="0" max="100" step="0.1" placeholder="30" required></label>
-      <label class="field-label" for="employment_years">Employment years<input class="field" id="employment_years" name="employment_years" type="number" inputmode="decimal" min="0" max="60" step="0.1" placeholder="5" required></label>
-      <label class="field-label" for="requested_loan_amount">Requested amount (USD)<input class="field" id="requested_loan_amount" name="requested_loan_amount" type="number" inputmode="decimal" min="0" max="2000000" step="1" placeholder="20000" required></label>
+
+  <header class="topbar">
+    <button class="icon-btn sidebar-toggle" id="sidebarToggle" type="button" aria-label="Toggle navigation" aria-expanded="false">
+      <svg><use href="#i-menu"/></svg>
+    </button>
+    <div class="crumbs">
+      <span>Personal workspace</span>
+      <svg><use href="#i-chevron"/></svg>
+      <span id="crumbCurrent">Overview</span>
     </div>
-    <label class="consent"><input id="demo-consent" type="checkbox" required><span>I understand this is an educational, synthetic indicator and not a lending or eligibility decision.</span></label>
-    <p id="form-error" class="form-error" role="alert" hidden></p>
-    <div class="form-actions"><button id="example-button" class="btn" type="button">Use synthetic example</button><button id="evaluate-button" class="btn btn-primary" type="submit">Encrypt locally and evaluate</button></div>
-  </form>
-  <section class="card result-card" aria-live="polite" aria-labelledby="result-title">
-    <div class="section-heading"><div><p class="eyebrow">Steps 2–3</p><h2 id="result-title">Encrypted result</h2></div><span id="result-state" class="state state-info" role="status"><span class="state-text"></span></span></div><p id="phase-detail" class="status-detail">Ready to create a browser-only key.</p>
-    <div id="result-empty" class="empty-state"><p>Your local plaintext result will appear here only after the browser decrypts the evaluator’s ciphertext.</p></div>
-    <div id="result-content" hidden>
-      <p class="indicator-label">Synthetic pressure indicator</p><p id="indicator-value" class="indicator-value">—</p><div class="gauge" aria-hidden="true"><span id="indicator-gauge" class="gauge-fill"></span></div>
-      <p id="indicator-copy" class="result-copy"></p>
-      <details class="receipt"><summary>View the privacy receipt</summary><dl><div><dt>Key owner</dt><dd>Browser memory only</dd></div><div><dt>Evaluator input</dt><dd>Public modulus + encrypted derived values</dd></div><div><dt>Persistence</dt><dd>None in this application</dd></div></dl></details>
+    <div class="topbar-right">
+      <button class="icon-btn" id="cmdkTriggerTop" type="button" aria-label="Open command palette">
+        <svg><use href="#i-search"/></svg>
+      </button>
+      <div class="theme-switch" role="group" aria-label="Theme">
+        <button class="theme-opt" data-theme-choice="light" type="button" aria-label="Light theme"><svg><use href="#i-sun"/></svg></button>
+        <button class="theme-opt" data-theme-choice="dark" type="button" aria-label="Dark theme"><svg><use href="#i-moon"/></svg></button>
+        <button class="theme-opt is-active" data-theme-choice="system" type="button" aria-label="Match system"><svg><use href="#i-monitor"/></svg></button>
+      </div>
+      <a class="icon-btn" href="https://github.com/abheet19" target="_blank" rel="noopener noreferrer" aria-label="ShieldAI on GitHub">
+        <svg><use href="#i-github"/></svg>
+      </a>
     </div>
-  </section>
-</section>
-<section class="method-card glass"><p class="eyebrow">Transparent model</p><h2>What the encrypted service calculates</h2><p>The browser derives debt-to-income, requested-amount-to-income, utilization, and a capped employment-stability gap. The service calculates <code>5 × debt-to-income + 4 × loan-to-income + 3 × utilization + 200 × stability gap</code> on ciphertexts. It cannot see the input values or decrypted total.</p></section>
+  </header>
+
+  <main class="main" id="main">
+
+    <!-- ============ OVERVIEW ============ -->
+    <section class="screen is-active" id="screen-overview" data-screen="overview">
+      <div class="screen-head">
+        <div>
+          <h1>Overview</h1>
+          <p>Every evaluation runs and stays in this browser. Nothing leaves except ciphertext.</p>
+        </div>
+        <div class="screen-head-actions">
+          <button class="btn btn-primary" data-open-new-eval type="button">
+            <svg><use href="#i-plus"/></svg>New evaluation
+          </button>
+        </div>
+      </div>
+
+      <div class="stat-row">
+        <div class="stat-tile">
+          <span class="stat-label">Local evaluations</span>
+          <span class="stat-value" id="statCount">0</span>
+          <span class="stat-sub">stored in this browser only</span>
+        </div>
+        <div class="stat-tile">
+          <span class="stat-label">Last result</span>
+          <span class="stat-value" id="statLastScore">—</span>
+          <span class="stat-sub" id="statLastBand">Run an evaluation to begin</span>
+        </div>
+        <div class="stat-tile">
+          <span class="stat-label">Key model</span>
+          <span class="stat-value stat-value-sm" id="statKeyFp">Ephemeral</span>
+          <span class="stat-sub">fresh 1024-bit pair per evaluation</span>
+        </div>
+        <div class="stat-tile">
+          <span class="stat-label">Model</span>
+          <span class="stat-value stat-value-sm">transparent-pressure-indicator-v1</span>
+          <span class="stat-sub is-good">Transparent scoring</span>
+        </div>
+      </div>
+
+      <div class="overview-grid">
+        <div class="panel">
+          <div class="panel-head">
+            <div>
+              <h3>Recent evaluations</h3>
+              <div class="panel-head-sub">Most recent first</div>
+            </div>
+            <button class="panel-link" data-goto-screen="evaluations" type="button">
+              View all<svg><use href="#i-arrow"/></svg>
+            </button>
+          </div>
+          <div class="recent-list" id="recentList">
+            <p class="empty-note">No local evaluations yet. Start one from the button above.</p>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head">
+            <div>
+              <h3>How ShieldAI evaluates privately</h3>
+              <div class="panel-head-sub">Paillier homomorphic encryption</div>
+            </div>
+          </div>
+          <div class="panel-body">
+            <div class="howit-steps">
+              <div class="howit-step">
+                <span class="howit-num">01</span>
+                <div><b>Encrypt on this device.</b><span>Income, debt, utilization, tenure and the requested amount are encrypted with a fresh local public key before anything leaves the drawer.</span></div>
+              </div>
+              <div class="howit-step">
+                <span class="howit-num">02</span>
+                <div><b>Compute under encryption.</b><span>The Flask evaluator adds and scales ciphertexts directly — it never sees a plaintext value, only the encrypted indicators.</span></div>
+              </div>
+              <div class="howit-step">
+                <span class="howit-num">03</span>
+                <div><b>Decrypt only the result.</b><span>The matching private key, held only in this tab's memory, decrypts a single number: the synthetic pressure index.</span></div>
+              </div>
+            </div>
+            <div class="formula-box">score = 5·debt-to-income + 4·loan-to-income + 3·utilization + 200·stability&nbsp;gap</div>
+            <div class="crosses-grid">
+              <div class="crosses-col">
+                <b>What crosses the network</b>
+                <ul><li>Public Paillier modulus</li><li>Four encrypted derived indicators</li><li>Encrypted result only</li></ul>
+              </div>
+              <div class="crosses-col">
+                <b>What stays on this device</b>
+                <ul><li>Raw income, debt &amp; utilization</li><li>Requested amount and employment years</li><li>The private key, always</li></ul>
+              </div>
+            </div>
+            <div class="howit-foot">This is an educational, synthetic indicator — not a lending or eligibility decision.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel spark-card">
+        <div class="panel-head">
+          <div>
+            <h3>Score trend</h3>
+            <div class="panel-head-sub" id="sparkSub">Local evaluations, oldest to newest</div>
+          </div>
+        </div>
+        <div class="panel-body">
+          <div class="spark-wrap" id="sparkWrap"></div>
+          <div class="spark-caption">Index points, clamped at 100 for display — the evaluations table shows exact values.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ EVALUATIONS ============ -->
+    <section class="screen" id="screen-evaluations" data-screen="evaluations" hidden>
+      <div class="screen-head">
+        <div>
+          <h1>Evaluations</h1>
+          <p>Local history only — never transmitted, cleared when you clear browser data or turn history off in Settings.</p>
+        </div>
+        <div class="screen-head-actions">
+          <button class="btn btn-primary" data-open-new-eval type="button">
+            <svg><use href="#i-plus"/></svg>New evaluation
+          </button>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-body panel-body--flush">
+          <div class="toolbar">
+            <div class="search-field">
+              <svg><use href="#i-search"/></svg>
+              <input type="text" id="evalSearch" placeholder="Search by evaluation ID…">
+            </div>
+            <div class="chip-row" id="bandFilters">
+              <button class="chip is-active" data-band="all" type="button">All</button>
+              <button class="chip" data-band="low" type="button">Lower</button>
+              <button class="chip" data-band="moderate" type="button">Moderate</button>
+              <button class="chip" data-band="high" type="button">Higher</button>
+            </div>
+            <span class="toolbar-count" id="tableCount">0 evaluations</span>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table class="eval-table">
+            <thead>
+              <tr>
+                <th>ID</th><th>Submitted</th><th class="num">Requested</th><th class="num">Utilization</th><th class="num">Employment</th><th class="num">Score</th><th>Result</th>
+              </tr>
+            </thead>
+            <tbody id="evalTableBody">
+              <tr><td colspan="7" class="empty-note">No local evaluations yet.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ SETTINGS ============ -->
+    <section class="screen" id="screen-settings" data-screen="settings" hidden>
+      <div class="screen-head">
+        <div>
+          <h1>Settings</h1>
+          <p>Keys, appearance and the privacy model behind every evaluation.</p>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head"><h3>Encryption &amp; key model</h3></div>
+        <div class="panel-body settings-grid">
+          <div class="setting-row">
+            <div class="setting-row-l">
+              <b>Per-evaluation key pair</b>
+              <span>A fresh 1024-bit Paillier key pair is generated in this browser for every evaluation and is never persisted or transmitted — there is no long-lived key to regenerate.</span>
+            </div>
+            <div class="setting-row-r">
+              <span class="fp-chip" id="settingsKeyFp">no evaluation run yet</span>
+            </div>
+          </div>
+          <div class="setting-row">
+            <div class="setting-row-l">
+              <b>Key owner</b>
+              <span>Browser memory only, for the lifetime of one evaluation — no account, no server-side custody.</span>
+            </div>
+            <div class="setting-row-r"><span class="chip chip-accent">Browser memory</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head"><h3>Appearance</h3></div>
+        <div class="panel-body settings-grid">
+          <div class="setting-row">
+            <div class="setting-row-l">
+              <b>Theme</b>
+              <span>System follows your OS setting; Light and Dark override it for this workspace, on this device only.</span>
+            </div>
+            <div class="setting-row-r">
+              <div class="segmented" id="settingsThemeSeg">
+                <button data-theme-choice="light" type="button">Light</button>
+                <button data-theme-choice="dark" type="button">Dark</button>
+                <button class="is-active" data-theme-choice="system" type="button">System</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head"><h3>Data &amp; privacy</h3></div>
+        <div class="panel-body settings-grid">
+          <div class="setting-row">
+            <div class="setting-row-l">
+              <b>Keep evaluation history in this browser</b>
+              <span>Stores your local evaluations in localStorage so they survive a page reload. Turning this off keeps history for this tab only, until you close it.</span>
+            </div>
+            <div class="setting-row-r">
+              <button class="switch is-on" id="historyToggle" role="switch" aria-checked="true" aria-label="Keep evaluation history" type="button"></button>
+            </div>
+          </div>
+          <div class="setting-row">
+            <div class="setting-row-l">
+              <b>Clear local history</b>
+              <span>Permanently removes every stored evaluation from this browser. This cannot be undone.</span>
+            </div>
+            <div class="setting-row-r">
+              <button class="btn btn-danger-ghost btn-sm" id="clearHistoryBtn" type="button"><svg><use href="#i-trash"/></svg>Clear local history</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head">
+          <div>
+            <h3>Model &amp; transparency</h3>
+            <div class="panel-head-sub">transparent-pressure-indicator-v1</div>
+          </div>
+        </div>
+        <div class="panel-body">
+          <div class="formula-box formula-box--flush">score = 5·debt-to-income + 4·loan-to-income + 3·utilization + 200·stability&nbsp;gap</div>
+          <div class="model-grid">
+            <div class="model-row"><b>Debt-to-income weight</b><span>×5</span></div>
+            <div class="model-row"><b>Loan-to-income weight</b><span>×4</span></div>
+            <div class="model-row"><b>Utilization weight</b><span>×3</span></div>
+            <div class="model-row"><b>Stability-gap weight</b><span>×200</span></div>
+            <div class="model-row"><b>Stability-gap cap</b><span>120 months tenure</span></div>
+            <div class="model-row"><b>Normalization divisor</b><span>1000</span></div>
+            <div class="model-row"><b>Score range</b><span>0–100, capped</span></div>
+            <div class="model-row"><b>What the evaluator sees</b><span>Public modulus + 4 ciphertexts</span></div>
+          </div>
+          <div class="howit-foot">The evaluator receives a public key and encrypted derived indicators only. The browser retains the private key in memory and decrypts the result locally — this model has no version history because nothing about it is hidden to reveal.</div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head"><h3>Ecosystem</h3></div>
+        <div class="panel-body">
+          <p class="panel-lede">ShieldAI shares its glass interface tokens with the rest of this build — one visual language across every project.</p>
+          <a class="eco-badge example-row" href="https://github.com/abheet19" target="_blank" rel="noopener noreferrer">
+            <svg><use href="#i-github"/></svg>github.com/abheet19
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <footer class="app-foot">
+      <span>Educational privacy-enhancing cryptography demo. Synthetic indicator only — not credit, lending, or financial advice.</span>
+      <a class="eco-badge" href="https://github.com/abheet19" target="_blank" rel="noopener noreferrer">
+        <svg><use href="#i-github"/></svg>github.com/abheet19
+      </a>
+    </footer>
+  </main>
+</div>
+
+<!-- ============ SCRIM ============ -->
+<div class="scrim" id="scrim"></div>
+
+<!-- ============ NEW EVALUATION DRAWER ============ -->
+<aside class="drawer" id="newEvalDrawer" aria-hidden="true">
+  <div class="drawer-head">
+    <div>
+      <h2 id="newEvalTitle">New evaluation</h2>
+      <div class="drawer-head-sub">A fresh browser-only key pair is generated for this run, then values are encrypted before any computation happens.</div>
+    </div>
+    <button class="drawer-close" id="closeNewEval" type="button" aria-label="Close"><svg><use href="#i-x"/></svg></button>
+  </div>
+  <div class="drawer-body">
+    <div id="newEvalForm">
+      <div class="form-grid">
+        <div class="field-wrap" id="fieldIncome">
+          <label for="annual_income">Annual income</label>
+          <div class="input-wrap"><input class="field" type="number" id="annual_income" name="annual_income" inputmode="decimal" min="1" max="2000000" step="1" placeholder="85000"><span class="suffix">USD</span></div>
+        </div>
+        <div class="field-wrap" id="fieldDebt">
+          <label for="existing_debt">Existing debt</label>
+          <div class="input-wrap"><input class="field" type="number" id="existing_debt" name="existing_debt" inputmode="decimal" min="0" max="2000000" step="1" placeholder="12000"><span class="suffix">USD</span></div>
+        </div>
+        <div class="field-wrap" id="fieldUtil">
+          <label for="credit_utilization_pct">Credit utilization</label>
+          <div class="input-wrap"><input class="field" type="number" id="credit_utilization_pct" name="credit_utilization_pct" inputmode="decimal" min="0" max="100" step="0.1" placeholder="30"><span class="suffix">%</span></div>
+        </div>
+        <div class="field-wrap" id="fieldEmp">
+          <label for="employment_years">Employment</label>
+          <div class="input-wrap"><input class="field" type="number" id="employment_years" name="employment_years" inputmode="decimal" min="0" max="60" step="0.1" placeholder="5"><span class="suffix">years</span></div>
+        </div>
+        <div class="field-wrap full" id="fieldReq">
+          <label for="requested_loan_amount">Requested amount</label>
+          <div class="input-wrap"><input class="field" type="number" id="requested_loan_amount" name="requested_loan_amount" inputmode="decimal" min="0" max="2000000" step="1" placeholder="20000"><span class="suffix">USD</span></div>
+        </div>
+      </div>
+
+      <div class="example-row">
+        <button class="btn btn-ghost btn-sm" id="example-button" type="button"><svg><use href="#i-refresh"/></svg>Use synthetic example</button>
+      </div>
+
+      <div class="consent u-mt-4" id="fieldConsent">
+        <input type="checkbox" id="demo-consent">
+        <label for="demo-consent">I understand this is an educational, synthetic indicator and not a lending or eligibility decision.</label>
+      </div>
+
+      <p class="form-alert" id="form-error" role="alert" hidden><svg><use href="#i-alert"/></svg><span id="form-error-msg"></span></p>
+    </div>
+
+    <div id="newEvalProgress" hidden>
+      <div class="proc-status">
+        <span class="state-dot is-info" id="procDot"></span>
+        <span class="proc-phase" id="procPhase">Encrypting</span>
+      </div>
+      <ol class="stepper" id="procSteps">
+        <li class="step-row" data-step="key"><span class="step-marker"></span><div><b>Generate a browser-only key</b><span>A fresh 1024-bit Paillier key pair, used for this evaluation only.</span></div></li>
+        <li class="step-row" data-step="send"><span class="step-marker"></span><div><b>Send ciphertexts to the evaluator</b><span>Public modulus and four encrypted indicators — never raw values.</span></div></li>
+        <li class="step-row" data-step="decrypt"><span class="step-marker"></span><div><b>Decrypt the result locally</b><span>The private key, held only in this tab, opens the final number.</span></div></li>
+      </ol>
+    </div>
+
+    <div id="newEvalResult" hidden aria-live="polite"></div>
+  </div>
+  <div class="drawer-foot" id="newEvalFoot">
+    <button class="btn btn-ghost" id="cancelNewEval" type="button">Cancel</button>
+    <button class="btn btn-primary" id="evaluate-button" type="button">
+      <svg><use href="#i-lock"/></svg>Encrypt locally and evaluate
+    </button>
+    <button class="btn btn-ghost" id="runAnotherBtn" type="button" hidden>Run another</button>
+  </div>
+</aside>
+
+<!-- ============ EVALUATION DETAIL DRAWER ============ -->
+<aside class="drawer drawer-wide" id="detailDrawer" aria-hidden="true">
+  <div class="drawer-head">
+    <div>
+      <h2 id="detailId">EVL-000001</h2>
+      <div class="drawer-head-sub" id="detailMeta">Submitted 3 min ago · requested $20,000</div>
+    </div>
+    <button class="drawer-close" id="closeDetail" type="button" aria-label="Close"><svg><use href="#i-x"/></svg></button>
+  </div>
+  <div class="drawer-body">
+    <div class="gauge-shell">
+      <svg viewBox="0 0 200 122">
+        <path d="M 10 110 A 90 90 0 0 1 190 110" fill="none" stroke="var(--line)" stroke-width="14" stroke-linecap="round"/>
+        <path id="gaugeArc" d="M 10 110 A 90 90 0 0 1 190 110" fill="none" stroke="var(--accent)" stroke-width="14" stroke-linecap="round" stroke-dasharray="283" stroke-dashoffset="283"/>
+        <circle cx="19.8" cy="69.1" r="2.6" fill="var(--line)"/>
+        <circle cx="59.1" cy="29.8" r="2.6" fill="var(--line)"/>
+        <circle cx="127.8" cy="24.4" r="2.6" fill="var(--line)"/>
+        <text x="10" y="121" font-family="IBM Plex Mono, ui-monospace, monospace" font-size="8" fill="var(--ink-2)">0</text>
+        <text x="182" y="121" font-family="IBM Plex Mono, ui-monospace, monospace" font-size="8" fill="var(--ink-2)" text-anchor="end">100+</text>
+      </svg>
+      <div class="gauge-readout"><span class="gauge-score" id="gaugeScore">0</span><span class="gauge-unit">index points</span></div>
+    </div>
+    <div class="gauge-caption" id="gaugeBandCaption">—</div>
+
+    <div class="panel">
+      <div class="panel-head"><h3>Contribution breakdown</h3></div>
+      <div class="panel-body breakdown-panel-body" id="breakdownList"></div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head"><h3>Privacy receipt</h3></div>
+      <div class="panel-body">
+        <div class="receipt-box">
+          <div class="receipt-row"><svg><use href="#i-key"/></svg><div><b>Key owner</b><span>Browser memory only — this device's key for this one evaluation, never uploaded.</span></div></div>
+          <div class="receipt-row"><svg><use href="#i-send"/></svg><div><b>Transmitted to evaluator</b><span>Public modulus, encrypted indicators, encrypted result only.</span></div></div>
+          <div class="receipt-row"><svg><use href="#i-lock"/></svg><div><b>Retained on this device</b><span>Raw inputs and the private key — never sent anywhere.</span></div></div>
+          <div class="receipt-row"><svg><use href="#i-clock"/></svg><div><b>Persistence</b><span id="receiptPersistence">Local history is on — this record stays in this browser until cleared.</span></div></div>
+        </div>
+        <div class="howit-foot" id="detailPrivacyNotice">Evaluator response notice: it saw a public key and encrypted derived indicators only — the private key stayed in this tab and decrypted the result locally.</div>
+      </div>
+    </div>
+  </div>
+  <div class="drawer-foot">
+    <button class="btn btn-ghost" id="rerunEvalBtn" type="button"><svg><use href="#i-refresh"/></svg>Re-run with new inputs</button>
+    <button class="btn btn-primary" id="closeDetailBtn" type="button">Close</button>
+  </div>
+</aside>
+
+<!-- ============ COMMAND PALETTE ============ -->
+<div class="cmdk-overlay" id="cmdkOverlay" aria-hidden="true">
+  <div class="cmdk-panel" role="dialog" aria-modal="true" aria-label="Command palette">
+    <div class="cmdk-input-row">
+      <svg><use href="#i-search"/></svg>
+      <input type="text" id="cmdkInput" placeholder="Type a command or search…" autocomplete="off">
+      <kbd>Esc</kbd>
+    </div>
+    <div class="cmdk-list" id="cmdkList"></div>
+  </div>
+</div>
+
+<!-- ============ TOAST ============ -->
+<div class="toast" id="toast" role="status"><svg><use href="#i-check"/></svg><span id="toastMsg">Done.</span></div>
 {% endblock %}
 {% block extra_scripts %}<script type="module" src="{{ url_for('static', filename='shield-client.js') }}"></script>{% endblock %}

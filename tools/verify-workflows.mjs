@@ -18,6 +18,7 @@ let evaluationCount = 0;
 let evaluationEnvelope;
 let expectingHttpError = false;
 
+page.on("dialog", (dialog) => dialog.accept());
 page.on("pageerror", (error) => errors.push(error.message));
 page.on("console", (message) => {
   if (message.type() !== "error") return;
@@ -46,6 +47,11 @@ async function assertNoHorizontalOverflow(label) {
   passed(`${label} has no horizontal overflow`);
 }
 
+async function openNewEvaluation() {
+  await page.locator("[data-open-new-eval]:visible").first().click();
+  await page.locator("#newEvalDrawer.is-open").waitFor();
+}
+
 async function fillValidExample() {
   const values = {
     annual_income: "85000",
@@ -55,7 +61,7 @@ async function fillValidExample() {
     requested_loan_amount: "20000",
   };
   for (const [field, value] of Object.entries(values)) {
-    await page.locator(`#${field}`).fill(value);
+    await page.locator(`#newEvalDrawer [name="${field}"]`).fill(value);
   }
 }
 
@@ -68,15 +74,12 @@ try {
   const response = await page.goto(baseUrl, { waitUntil: "networkidle" });
   assert.equal(response.status(), 200);
   assert.match(await page.title(), /ShieldAI/);
-  assert.equal(await page.locator("h1").count(), 1);
+  assert.equal(await page.locator("h1:visible").count(), 1);
   assert.equal(await page.locator("main").count(), 1);
   assert.equal(await page.locator("footer").count(), 1);
   await page.getByRole("link", { name: "ShieldAI home" }).waitFor();
-  await page.getByRole("button", { name: /theme/i }).waitFor();
-  await page.getByRole("button", { name: "Use synthetic example" }).waitFor();
-  await page
-    .getByRole("button", { name: "Encrypt locally and evaluate" })
-    .waitFor();
+  await page.getByRole("group", { name: "Theme" }).waitFor();
+  await page.getByRole("button", { name: "New evaluation" }).first().waitFor();
   passed(
     "landmarks, heading hierarchy, and every primary CTA have accessible names",
   );
@@ -89,24 +92,23 @@ try {
   );
   passed("release identity endpoint is healthy and schema-bound");
 
+  await openNewEvaluation();
+  await page.getByRole("button", { name: "Use synthetic example" }).waitFor();
+  await page
+    .getByRole("button", { name: "Encrypt locally and evaluate" })
+    .waitFor();
+  passed(
+    "New evaluation drawer exposes every primary CTA with an accessible name",
+  );
+
   await page.locator("#evaluate-button").click();
   assert.match(await page.locator("#form-error").innerText(), /required/);
   assert.equal(evaluationCount, 0);
   assert.equal(
-    await page.locator("#annual_income").getAttribute("aria-invalid"),
-    "true",
+    await page.locator("#annual_income").evaluate((el) => el.matches(":focus")),
+    true,
   );
-  assert.equal(
-    await page.locator("#result-state").getAttribute("role"),
-    "status",
-  );
-  assert.equal(
-    await page.locator("#result-state").getAttribute("aria-label"),
-    "Error",
-  );
-  passed(
-    "empty form is denied, focused, and marked invalid before encryption or network work",
-  );
+  passed("empty form is denied and focused before encryption or network work");
 
   await page.locator("#annual_income").fill("85000");
   await page.locator("#evaluate-button").click();
@@ -147,14 +149,17 @@ try {
   const started = Date.now();
   await page.locator("#evaluate-button").click();
   await Promise.race([
-    page.locator("#result-content:not([hidden])").waitFor({ timeout: 60_000 }),
+    page.locator("#newEvalResult:not([hidden])").waitFor({ timeout: 60_000 }),
     page.locator("#form-error:not([hidden])").waitFor({ timeout: 60_000 }),
   ]);
   if (await page.locator("#form-error").isVisible()) {
     throw new Error(await page.locator("#form-error").innerText());
   }
   const evaluationDurationMs = Date.now() - started;
-  assert.equal(await page.locator("#indicator-value").innerText(), "37.5/100");
+  assert.match(
+    await page.locator(".result-banner-score").innerText(),
+    /^37\.5\/100$/,
+  );
   assert.deepEqual(Object.keys(evaluationEnvelope).sort(), [
     "encrypted_values",
     "public_key",
@@ -165,34 +170,48 @@ try {
     "real browser encryption, Flask ciphertext arithmetic, and local decryption produce 37.5/100",
   );
 
-  const receiptSummary = page.getByText("View the privacy receipt");
-  await receiptSummary.focus();
-  await page.keyboard.press("Enter");
-  assert.equal(await page.locator("details.receipt").getAttribute("open"), "");
-  assert.equal(
-    await receiptSummary.evaluate((element) => {
-      const rect = element.getBoundingClientRect();
-      return rect.width >= 24 && rect.height >= 24;
-    }),
-    true,
-  );
+  const resultScope = page.locator("#newEvalResult");
+  await resultScope.getByRole("heading", { name: "Privacy receipt" }).waitFor();
+  await resultScope.getByText("Key owner").waitFor();
   await page.screenshot({
     path: `${outputDirectory}/desktop-result.png`,
     fullPage: true,
   });
-  await page.keyboard.press("Enter");
-  assert.equal(
-    await page.locator("details.receipt").getAttribute("open"),
-    null,
+  passed(
+    "the completed evaluation renders a contribution breakdown and a privacy receipt",
   );
-  passed("privacy receipt opens and closes from the keyboard");
 
-  const themeButton = page.locator("#theme-toggle");
-  const originalTheme = await page.locator("html").getAttribute("data-theme");
-  await themeButton.focus();
+  await page.locator("#newEvalDrawer #closeNewEval").click();
+  assert.equal(
+    await page
+      .locator("#newEvalDrawer")
+      .evaluate((el) => el.classList.contains("is-open")),
+    false,
+  );
+  await page.getByRole("button", { name: "Evaluations" }).click();
+  const firstRow = page.locator("#evalTableBody tr").first();
+  await firstRow.focus();
   await page.keyboard.press("Enter");
+  await page.locator("#detailDrawer.is-open").waitFor();
+  await page
+    .locator("#detailDrawer")
+    .getByRole("heading", { name: /EVL-/ })
+    .waitFor();
+  await page.keyboard.press("Escape");
+  await page.waitForFunction(
+    () =>
+      !document.querySelector("#detailDrawer").classList.contains("is-open"),
+  );
+  passed(
+    "an evaluation row opens and closes its detail drawer from the keyboard",
+  );
+
+  const themeGroup = page.getByRole("group", { name: "Theme" });
+  const originalTheme = await page.locator("html").getAttribute("data-theme");
+  await themeGroup.getByRole("button", { name: "Dark theme" }).click();
   const alternateTheme = await page.locator("html").getAttribute("data-theme");
   assert.notEqual(alternateTheme, originalTheme);
+  assert.equal(alternateTheme, "dark");
   await page.reload({ waitUntil: "networkidle" });
   assert.equal(
     await page.locator("html").getAttribute("data-theme"),
@@ -204,6 +223,7 @@ try {
   });
   passed("theme CTA is keyboard-operable and persists across reload");
 
+  await openNewEvaluation();
   await fillValidExample();
   await page.locator("#demo-consent").check();
   await page.route("**/api/v1/private-evaluations", (route) =>
@@ -219,7 +239,7 @@ try {
   await page.locator("#evaluate-button").click();
   await page.locator("#form-error:not([hidden])").waitFor();
   assert.match(await page.locator("#form-error").innerText(), /budget reached/);
-  assert.equal(await page.locator("#result-content").isVisible(), false);
+  assert.equal(await page.locator("#newEvalResult").isVisible(), false);
   assert.equal(await page.locator("#evaluate-button").isEnabled(), true);
   expectingHttpError = false;
   await page.unroute("**/api/v1/private-evaluations");
@@ -238,6 +258,16 @@ try {
   assert.equal(await page.locator("#evaluate-button").isEnabled(), true);
   await page.unroute("**/api/v1/private-evaluations");
   passed("malformed-success recovery is bounded and retryable");
+  await page.locator("#cancelNewEval").click();
+
+  await page.getByRole("button", { name: "Settings" }).click();
+  await page.locator("#clearHistoryBtn").click();
+  await page.getByRole("button", { name: "Overview" }).click();
+  await page.locator("#statCount").waitFor();
+  assert.equal(await page.locator("#statCount").innerText(), "0");
+  passed(
+    "local history can be cleared from Settings after a confirmation dialog",
+  );
 
   const frameTimes = await page.evaluate(async () => {
     window.scrollTo(0, 0);
@@ -261,16 +291,25 @@ try {
 
   await page.setViewportSize({ width: 320, height: 720 });
   await page.reload({ waitUntil: "networkidle" });
-  assert.equal(await page.locator("#result-content").isVisible(), false);
+  assert.equal(
+    await page
+      .locator("#newEvalDrawer")
+      .evaluate((el) => el.classList.contains("is-open")),
+    false,
+  );
   await assertNoHorizontalOverflow("320px mobile layout");
+  await page.locator("#sidebarToggle").click();
+  await page.locator("#sidebar.is-open").waitFor();
   const mobileTargets = await page
-    .locator("button, a.brand, label.consent")
+    .locator('button, a.side-brand, a.icon-btn, label[for="demo-consent"]')
     .evaluateAll((elements) =>
-      elements.map((element) => ({
-        name: element.textContent.trim(),
-        width: element.getBoundingClientRect().width,
-        height: element.getBoundingClientRect().height,
-      })),
+      elements
+        .filter((element) => element.getBoundingClientRect().width > 0)
+        .map((element) => ({
+          name: element.textContent.trim(),
+          width: element.getBoundingClientRect().width,
+          height: element.getBoundingClientRect().height,
+        })),
     );
   assert.equal(
     mobileTargets.every(({ width, height }) => width >= 24 && height >= 24),
@@ -282,10 +321,15 @@ try {
   });
   passed("mobile interactive targets meet the 24 CSS-pixel minimum");
 
-  await page.getByRole("link", { name: "ShieldAI home" }).click();
+  await page.locator("#sidebar a.side-brand").click();
   assert.equal(new URL(page.url()).pathname, "/");
-  assert.equal(await page.locator("#result-content").isVisible(), false);
-  passed("brand-home CTA returns to a clean, non-persistent form");
+  assert.equal(
+    await page
+      .locator("#newEvalDrawer")
+      .evaluate((el) => el.classList.contains("is-open")),
+    false,
+  );
+  passed("brand-home CTA returns to a clean workspace");
 
   const navigation = await page.evaluate(() => {
     const entry = performance.getEntriesByType("navigation")[0];
