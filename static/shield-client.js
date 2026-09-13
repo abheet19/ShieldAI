@@ -511,18 +511,16 @@ function buildResultView(record) {
   label.textContent = "Synthetic pressure indicator";
   const score = document.createElement("span");
   score.className = "result-banner-score";
-  score.textContent = `${record.score}/100`;
+  score.textContent = `${record.score} `;
+  const unit = document.createElement("small");
+  unit.className = "result-banner-unit";
+  unit.textContent = "idx";
+  score.append(unit);
   top.append(label, score);
-  const gauge = document.createElement("div");
-  gauge.className = "gauge";
-  const fill = document.createElement("span");
-  fill.className = "gauge-fill";
-  fill.style.width = `${Math.min(100, record.score)}%`;
-  gauge.append(fill);
   const copy = document.createElement("p");
   copy.className = "result-copy";
   copy.textContent = explanation(record.score);
-  banner.append(top, gauge, copy);
+  banner.append(top, copy);
 
   const breakdownPanel = document.createElement("div");
   breakdownPanel.className = "panel";
@@ -762,7 +760,9 @@ function renderStats() {
   $("statCount").textContent = String(history.length);
   $("navEvalCount").textContent = String(history.length);
   if (history[0]) {
-    $("statLastScore").textContent = `${history[0].score}`;
+    // score is a numeric literal computed above — safe to interpolate; the
+    // <small>idx</small> unit matches the design artifact's stat tile.
+    $("statLastScore").innerHTML = `${history[0].score}<small>idx</small>`;
     $("statLastBand").textContent = history[0].bandLabel;
   } else {
     $("statLastScore").textContent = "—";
@@ -792,67 +792,150 @@ function renderRecentList() {
     meta.className = "recent-meta";
     meta.textContent = `${relTime(Date.now() - record.ts)} · requested ${fmtUSD(record.inputs.requested_loan_amount)}`;
     idWrap.append(id, meta);
+    const score = document.createElement("span");
+    score.className = "recent-score";
+    score.textContent = `${record.score} idx`;
     const band = document.createElement("span");
     band.className = `pill pill-${record.band}`;
     band.textContent = record.bandLabel;
-    const score = document.createElement("span");
-    score.className = "recent-score";
-    score.textContent = `${record.score}/100`;
-    row.append(idWrap, band, score);
+    row.append(idWrap, score, band);
     row.addEventListener("click", () => openDetailDrawer(record));
     container.append(row);
   }
 }
+const SPARK_BAND_COLOR = {
+  low: "var(--ok)",
+  moderate: "var(--warn)",
+  high: "var(--bad)",
+};
+const SVG_NS = "http://www.w3.org/2000/svg";
+function svgEl(name, attrs, text) {
+  const el = document.createElementNS(SVG_NS, name);
+  for (const [key, value] of Object.entries(attrs)) el.setAttribute(key, value);
+  if (text !== undefined) el.textContent = text;
+  return el;
+}
 function renderSparkline() {
   const wrap = $("sparkWrap");
-  const points = history.slice(0, 8).reverse();
+  wrap.textContent = "";
+  const points = history.slice(0, 6).reverse();
   if (points.length < 2) {
-    wrap.textContent = "";
     const note = document.createElement("p");
     note.className = "empty-note empty-note--tight";
     note.textContent = "Run two or more evaluations to see a trend.";
     wrap.append(note);
     return;
   }
-  const w = 560;
-  const h = 120;
-  const pad = 10;
-  const step = (w - pad * 2) / (points.length - 1);
-  const coords = points.map((record, index) => {
-    const clamped = Math.max(0, Math.min(100, record.score));
-    const x = pad + step * index;
-    const y = h - pad - (clamped / 100) * (h - pad * 2);
-    return [x, y];
+  // Geometry matches redesigns/shieldai.html: left gutter for the 0/50/100
+  // value labels, bottom gutter for the first/last time labels, and
+  // preserveAspectRatio="xMidYMid meet" so the stroke never stretches.
+  const W = 620;
+  const H = 110;
+  const padL = 30;
+  const padR = 14;
+  const top = 12;
+  const bottom = 30;
+  const innerW = W - padL - padR;
+  const stepX = points.length > 1 ? innerW / (points.length - 1) : 0;
+  const yFor = (value) => {
+    const clamped = Math.max(0, Math.min(100, value));
+    return top + (1 - clamped / 100) * (H - top - bottom);
+  };
+  const svg = svgEl("svg", {
+    viewBox: `0 0 ${W} ${H}`,
+    preserveAspectRatio: "xMidYMid meet",
   });
-  const path = coords
-    .map(
-      ([x, y], index) =>
-        `${index === 0 ? "M" : "L"}${x.toFixed(1)},${y.toFixed(1)}`,
-    )
-    .join(" ");
-  const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-  svg.setAttribute("viewBox", `0 0 ${w} ${h}`);
-  svg.setAttribute("preserveAspectRatio", "none");
-  const line = document.createElementNS("http://www.w3.org/2000/svg", "path");
-  line.setAttribute("d", path);
-  line.setAttribute("fill", "none");
-  line.setAttribute("stroke", "var(--accent)");
-  line.setAttribute("stroke-width", "2");
-  line.setAttribute("stroke-linecap", "round");
-  line.setAttribute("stroke-linejoin", "round");
-  svg.append(line);
-  coords.forEach(([x, y]) => {
-    const dot = document.createElementNS(
-      "http://www.w3.org/2000/svg",
-      "circle",
+
+  // gridlines + value labels at 0 / 50 / 100
+  [0, 50, 100].forEach((value) => {
+    const y = yFor(value);
+    svg.append(
+      svgEl("line", {
+        x1: padL,
+        y1: y.toFixed(1),
+        x2: W - padR,
+        y2: y.toFixed(1),
+        stroke: "var(--line)",
+        "stroke-width": "1",
+      }),
     );
-    dot.setAttribute("cx", x.toFixed(1));
-    dot.setAttribute("cy", y.toFixed(1));
-    dot.setAttribute("r", "3");
-    dot.setAttribute("fill", "var(--accent)");
-    svg.append(dot);
+    svg.append(
+      svgEl(
+        "text",
+        {
+          x: "4",
+          y: (y + 3).toFixed(1),
+          "font-family": "IBM Plex Mono, ui-monospace, monospace",
+          "font-size": "9",
+          fill: "var(--ink-2)",
+        },
+        String(value),
+      ),
+    );
   });
-  wrap.textContent = "";
+
+  const coords = points.map((record, index) => ({
+    x: padL + index * stepX,
+    y: yFor(record.score),
+    band: record.band,
+  }));
+  const path = coords
+    .map((c, i) => `${i === 0 ? "M" : "L"}${c.x.toFixed(1)},${c.y.toFixed(1)}`)
+    .join(" ");
+  svg.append(
+    svgEl("path", {
+      d: path,
+      fill: "none",
+      stroke: "var(--accent)",
+      "stroke-width": "2",
+      "stroke-linejoin": "round",
+      "stroke-linecap": "round",
+    }),
+  );
+
+  // band-coloured dots
+  coords.forEach((c) => {
+    svg.append(
+      svgEl("circle", {
+        cx: c.x.toFixed(1),
+        cy: c.y.toFixed(1),
+        r: "4",
+        fill: SPARK_BAND_COLOR[c.band] || "var(--accent)",
+        stroke: "var(--bg)",
+        "stroke-width": "1.5",
+      }),
+    );
+  });
+
+  // first / last time labels
+  svg.append(
+    svgEl(
+      "text",
+      {
+        x: padL,
+        y: H - 8,
+        "font-family": "IBM Plex Mono, ui-monospace, monospace",
+        "font-size": "9",
+        fill: "var(--ink-2)",
+      },
+      relTime(Date.now() - points[0].ts),
+    ),
+  );
+  svg.append(
+    svgEl(
+      "text",
+      {
+        x: W - padR,
+        y: H - 8,
+        "font-family": "IBM Plex Mono, ui-monospace, monospace",
+        "font-size": "9",
+        fill: "var(--ink-2)",
+        "text-anchor": "end",
+      },
+      relTime(Date.now() - points[points.length - 1].ts),
+    ),
+  );
+
   wrap.append(svg);
 }
 
@@ -895,8 +978,8 @@ function renderEvalTable() {
       tableCell(relTime(Date.now() - record.ts), "row-time"),
       tableCell(fmtUSD(record.inputs.requested_loan_amount), "mono"),
       tableCell(`${record.inputs.credit_utilization_pct}%`, "mono"),
-      tableCell(`${record.inputs.employment_years}y`, "mono"),
-      tableCell(`${record.score}/100`, "mono"),
+      tableCell(`${record.inputs.employment_years} yr`, "mono"),
+      tableCell(`${record.score}`, "mono"),
     );
     const resultCell = document.createElement("td");
     const pill = document.createElement("span");

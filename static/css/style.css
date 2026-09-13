@@ -4,7 +4,7 @@
    here paints a raw colour — see primitives.css §"two rules". */
 
 :root {
-  --sidebar-w: 260px;
+  --sidebar-w: 264px;
   /* Display face for hero-scale headings only. No @font-face, no network
      fetch — a serif fallback stack gives a distinct "display" register
      without breaking the vendored glass package's offline guarantee. */
@@ -99,12 +99,15 @@ svg {
   height: 34px;
   flex: none;
   border-radius: var(--r-2);
-  overflow: hidden;
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  color: var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
-.side-logo img {
-  display: block;
-  width: 100%;
-  height: 100%;
+.side-logo svg {
+  width: 19px;
+  height: 19px;
 }
 .side-brand-text {
   display: flex;
@@ -347,16 +350,40 @@ svg {
   color: var(--ink-2);
   transition:
     border-color var(--t-fast) var(--ease),
-    color var(--t-fast) var(--ease);
+    color var(--t-fast) var(--ease),
+    transform var(--t-fast) var(--ease);
   text-decoration: none;
 }
 .icon-btn:hover {
   border-color: var(--accent);
   color: var(--ink);
+  transform: translateY(-1px);
 }
 .icon-btn svg {
   width: 16px;
   height: 16px;
+}
+
+/* gradient identity avatar (topbar) — doubles as the profile link */
+.avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-size: 0.76rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--on-accent);
+  text-decoration: none;
+  background: linear-gradient(155deg, var(--accent), var(--accent-2));
+  transition: transform var(--t-fast) var(--ease);
+}
+.avatar:hover {
+  transform: translateY(-1px);
 }
 
 .theme-switch {
@@ -787,6 +814,31 @@ svg {
   gap: 7px;
   flex-wrap: wrap;
 }
+/* band-filter chips — mono pills; the active one fills with accent-soft so the
+   current filter is unmistakable (primitives' base .chip gives no active state) */
+.chip-row .chip {
+  font-family: var(--font-mono);
+  font-size: 0.76rem;
+  padding: 6px 12px;
+  border-radius: var(--r-pill);
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--ink-2);
+  min-height: 30px;
+  transition:
+    border-color var(--t-fast) var(--ease),
+    color var(--t-fast) var(--ease),
+    background var(--t-fast) var(--ease);
+}
+.chip-row .chip:hover {
+  border-color: color-mix(in srgb, var(--accent) 40%, var(--line));
+  color: var(--ink);
+}
+.chip-row .chip.is-active {
+  background: color-mix(in srgb, var(--accent) 16%, var(--surface));
+  border-color: color-mix(in srgb, var(--accent) 34%, var(--surface));
+  color: var(--accent);
+}
 .toolbar-count {
   margin-left: auto;
   font-size: 0.78rem;
@@ -1176,6 +1228,11 @@ table.eval-table {
   font-size: 1.6rem;
   font-weight: 600;
   color: var(--ink);
+}
+.result-banner-unit {
+  font-size: 0.6em;
+  color: var(--ink-2);
+  font-weight: 500;
 }
 .result-copy {
   margin: 0;

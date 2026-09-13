@@ -2,6 +2,10 @@
 {% block title %}ShieldAI — private evaluation workspace{% endblock %}
 {% block body %}
 <svg hidden aria-hidden="true">
+  <symbol id="i-shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M12 2.5 20 6v5.2c0 5.1-3.4 9-8 10.3-4.6-1.3-8-5.2-8-10.3V6z"/>
+    <path d="M8.7 12.2 11 14.5l4.6-5"/>
+  </symbol>
   <symbol id="i-grid" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
     <rect x="3.5" y="3.5" width="7.2" height="7.2" rx="1.4"/><rect x="13.3" y="3.5" width="7.2" height="7.2" rx="1.4"/>
     <rect x="3.5" y="13.3" width="7.2" height="7.2" rx="1.4"/><rect x="13.3" y="13.3" width="7.2" height="7.2" rx="1.4"/>
@@ -74,7 +78,7 @@
 <div class="app" id="app">
   <aside class="sidebar" id="sidebar">
     <a class="side-brand" href="{{ url_for('home') }}" aria-label="ShieldAI home">
-      <span class="side-logo"><img src="{{ url_for('static', filename='brand/mark.svg') }}" alt=""></span>
+      <span class="side-logo"><svg width="19" height="19" aria-hidden="true"><use href="#i-shield"/></svg></span>
       <div class="side-brand-text">
         <span class="side-name">ShieldAI</span>
         <span class="side-sub">Private evaluation workspace</span>
@@ -134,9 +138,7 @@
         <button class="theme-opt" data-theme-choice="dark" type="button" aria-label="Dark theme"><svg><use href="#i-moon"/></svg></button>
         <button class="theme-opt is-active" data-theme-choice="system" type="button" aria-label="Match system"><svg><use href="#i-monitor"/></svg></button>
       </div>
-      <a class="icon-btn" href="https://github.com/abheet19" target="_blank" rel="noopener noreferrer" aria-label="ShieldAI on GitHub">
-        <svg><use href="#i-github"/></svg>
-      </a>
+      <a class="avatar" href="https://github.com/abheet19" target="_blank" rel="noopener noreferrer" aria-label="ShieldAI on GitHub — abheet19">AA</a>
     </div>
   </header>
 
@@ -318,7 +320,7 @@
               <b>Key owner</b>
               <span>Browser memory only, for the lifetime of one evaluation — no account, no server-side custody.</span>
             </div>
-            <div class="setting-row-r"><span class="chip chip-accent">Browser memory</span></div>
+            <div class="setting-row-r"><span class="pill pill-low">Browser memory</span></div>
           </div>
         </div>
       </div>
