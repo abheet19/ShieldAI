@@ -9,7 +9,7 @@
 A working demonstration of **Paillier homomorphic encryption** — the browser encrypts every number, the server does real arithmetic on the ciphertext, and only your device holds the key that can read the answer.
 
 [![Live demo](https://img.shields.io/badge/Live_demo-Fly.io-2563eb?style=for-the-badge&logo=fly.io&logoColor=white)](https://shieldai-abheet19.fly.dev)
-[![Version proof](https://img.shields.io/badge/release-%2Fversion-1e293b?style=for-the-badge)](https://shieldai-abheet19.fly.dev/version)
+[![Version endpoint](https://img.shields.io/badge/release-%2Fversion-1e293b?style=for-the-badge)](https://shieldai-abheet19.fly.dev/version)
 
 ![Python](https://img.shields.io/badge/Python-3.12-3776AB?logo=python&logoColor=white)
 ![Flask](https://img.shields.io/badge/Flask-server-000000?logo=flask&logoColor=white)
@@ -152,7 +152,7 @@ The redesigned glass workspace passes the full backend suite (8/8), a nineteen-g
 
 ## Deployment
 
-Deployed on **Fly.io** (scale-to-zero, so the first hit after idle cold-starts). The image bakes `GITHUB_SHA` as `SHIELDAI_SOURCE_COMMIT`; treat a release as live only when the public `/version` commit equals the reviewed Git commit — a URL alone is not release proof. Before any wider, non-educational launch: edge/WAF rate limiting, authentication, retained monitoring, an independent accessibility review, a 2048-bit key decision, and external cryptographic review.
+Deployed on **Fly.io** (scale-to-zero, so the first hit after idle cold-starts). The image can bake `GITHUB_SHA` as `SHIELDAI_SOURCE_COMMIT`; treat a release as identified only when the public `/version` commit equals the reviewed Git commit. As of 15 September 2026, that endpoint reports `source_commit: "unknown"`, so the public build is reachable and functionally testable but its exact source revision is not proven. Before any wider, non-educational launch: edge/WAF rate limiting, authentication, retained monitoring, an independent accessibility review, a 2048-bit key decision, and external cryptographic review.
 
 ---
 
