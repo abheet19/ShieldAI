@@ -86,10 +86,10 @@ try {
 
   const version = await page.request.get(`${baseUrl}/version`);
   assert.equal(version.status(), 200);
-  assert.match(
-    (await version.json()).source_commit,
-    /^(?:unknown|[0-9a-f]{40})$/,
-  );
+  const releasePattern = process.env.SHIELDAI_BASE_URL
+    ? /^[0-9a-f]{40}$/
+    : /^(?:unknown|[0-9a-f]{40})$/;
+  assert.match((await version.json()).source_commit, releasePattern);
   passed("release identity endpoint is healthy and schema-bound");
 
   await openNewEvaluation();
