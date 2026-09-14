@@ -242,6 +242,11 @@ function closeMobileSidebar() {
   if (!anyOverlayOpen()) scrimEl.classList.remove("is-open");
 }
 $("sidebarToggle").addEventListener("click", () => {
+  // The mobile drawer slides in under the app bar; tell CSS how tall it is.
+  root.style.setProperty(
+    "--topbar-h",
+    `${document.querySelector(".topbar").offsetHeight}px`,
+  );
   const open = sidebarEl.classList.toggle("is-open");
   $("sidebarToggle").setAttribute("aria-expanded", String(open));
   scrimEl.classList.toggle("is-open", open);
@@ -1193,6 +1198,11 @@ function openCmdk() {
 }
 $("cmdkTrigger").addEventListener("click", openCmdk);
 $("cmdkTriggerTop").addEventListener("click", openCmdk);
+// The palette overlay sits above the shared scrim, so a click outside the
+// panel lands here rather than on the scrim — close on that click too.
+cmdkOverlay.addEventListener("click", (event) => {
+  if (event.target === cmdkOverlay) closeOverlay(cmdkOverlay);
+});
 cmdkInput.addEventListener("input", () => {
   cmdkHighlight = 0;
   renderCmdk(cmdkInput.value);

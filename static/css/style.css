@@ -1690,9 +1690,9 @@ table.eval-table {
   }
   .sidebar {
     position: fixed;
-    inset: 0 auto 0 0;
+    inset: var(--topbar-h, 0px) auto 0 0;
     width: 280px;
-    height: 100vh;
+    height: auto;
     z-index: 75;
     transform: translateX(-104%);
     transition: transform 0.22s;
@@ -1700,8 +1700,22 @@ table.eval-table {
   .sidebar.is-open {
     transform: translateX(0);
   }
+  /* Keep the app bar (and its hamburger) above the open drawer and the scrim,
+     so a second tap on the hamburger closes the menu instead of landing on
+     the drawer's brand link and reloading the page. */
+  .sidebar.is-open ~ .topbar {
+    z-index: 76;
+  }
   .sidebar-toggle {
     display: flex;
+  }
+  /* Grid items default to min-width:auto, so the topbar's and the overview
+     panels' min-content widths would widen the single column past the
+     viewport — and body{overflow-x:hidden} would then clip the avatar,
+     "New evaluation" and the Settings controls off-screen. */
+  .topbar,
+  .overview-grid > .panel {
+    min-width: 0;
   }
   .main {
     padding: var(--sp-5) var(--sp-4) 56px;
@@ -1761,5 +1775,16 @@ table.eval-table {
   }
   .main {
     padding: var(--sp-4) var(--sp-3) 48px;
+  }
+  /* The workspace crumb does not fit beside the topbar controls on phones;
+     keep only the current-screen crumb so it is not overlapped. */
+  .crumbs > span:first-child,
+  .crumbs > svg {
+    display: none;
+  }
+  /* Two head CTAs side by side outgrow a phone viewport; let them wrap. */
+  .screen-head-actions {
+    flex: 1 1 auto;
+    flex-wrap: wrap;
   }
 }
