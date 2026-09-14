@@ -201,3 +201,151 @@ A: 2048-bit+ keys, a zero-knowledge range proof for honest client inputs, authen
 3. Change formula / derivation / normalization / explanation / fixture together.
 4. Do not weaken arithmetic / size / quota checks without focused negative tests.
 5. Call a release live only when the public `/version` commit equals the reviewed Git commit.
+
+## Annotated core code + knowledge graph
+
+> Appended 14 September 2026. This section grounds every claim above in the **actual source on `redesign-glass`**. The live homomorphic path is exactly three files: `static/shield-client.js` (browser keygen/encrypt/decrypt), `static/vendor/paillier-bigint.js` (the vendored Paillier primitives the browser calls), and `app.py` (the server that does arithmetic on ciphertext). `servercalc.py`, `cust.py`, `linmodel.py`, `train.py`, `generate_loan_data.py` are a **legacy server-side-key salary-prediction demo** and are **not imported by `app.py`** — ignore them when explaining the running app.
+
+### Knowledge graph / structure summary
+
+```mermaid
+flowchart TD
+    subgraph BROWSER["BROWSER — holds the private key, never uploads it"]
+        FORM["index.html form<br/>5 raw figures + consent"]
+        DERIVE["shield-client.js<br/>derivedIndicators()<br/>5 figures &rarr; 4 integer bps indicators"]
+        KEYGEN["paillier-bigint.js<br/>generateRandomKeys(1024, true)<br/>ephemeral keypair, g = n+1"]
+        ENC["publicKey.encrypt(BigInt(indicator))<br/>4 ciphertexts"]
+        DEC["privateKey.decrypt(BigInt(result))<br/>&rarr; raw weighted sum"]
+        NORM["&divide; divisor(1000), clamp 0&ndash;100<br/>&rarr; score + contribution bars"]
+    end
+    subgraph WIRE["NETWORK — only ciphertext + public modulus cross here"]
+        REQ["POST /api/v1/private-evaluations<br/>public_key:n + encrypted_values:4"]
+        RES["200 encrypted_result + model(weights,divisor) + privacy_notice"]
+    end
+    subgraph SERVER["FLASK app.py — no private key, no plaintext, no DB"]
+        VAL["EncryptedEvaluation.from_payload()<br/>field-set / size / 1024-bit odd modulus /<br/>range 0&lt;c&lt;n&sup2; / gcd(c,n)=1 — cheap-first"]
+        QUOTA["RequestLimiter.retry_after()<br/>sliding-hour budget, keyed on Fly-Client-IP"]
+        HOMO["encrypted_weighted_sum()<br/>Enc(0) then += c&sup2; * weight<br/>pure add + scalar-mult on ciphertext"]
+    end
+
+    FORM --> DERIVE --> KEYGEN --> ENC --> REQ
+    REQ --> VAL --> QUOTA --> HOMO --> RES
+    RES --> DEC --> NORM
+
+    classDef browser fill:#1e3a5f,stroke:#5ea0ea,color:#eaf2ff;
+    classDef wire fill:#4a3d1a,stroke:#e0b64a,color:#fff8e6;
+    classDef server fill:#1f4030,stroke:#5ed99a,color:#e8fff2;
+    class FORM,DERIVE,KEYGEN,ENC,DEC,NORM browser;
+    class REQ,RES wire;
+    class VAL,QUOTA,HOMO server;
+```
+
+**What each module owns**
+
+- **`static/shield-client.js`** — the entire client trust boundary: form validation, `derivedIndicators()` (raw figures &rarr; 4 bounded integer bps indicators), the `runEvaluation()` orchestration (keygen &rarr; encrypt &rarr; POST &rarr; decrypt &rarr; normalize), and all workspace UI/history state. The private key lives only in a local `const` inside `runEvaluation()`; it is never stored or transmitted.
+- **`static/vendor/paillier-bigint.js`** — the cryptographic primitives the client imports: `generateRandomKeys`, `PublicKey.encrypt/addition/multiply`, `PrivateKey.decrypt`. Pure BigInt modular arithmetic; runs `isProbablyPrime` in Web Workers so 1024-bit keygen does not freeze the tab. Vendored (not a CDN) so crypto never depends on a mutable remote asset.
+- **`app.py`** — the honest-but-curious server: `EncryptedEvaluation.from_payload()` (envelope validation), `RequestLimiter` (DoS budget), `encrypted_weighted_sum()` (the homomorphic combination), security headers, and payload-free structured logging. It uses Python `phe` and calls `PaillierPublicKey(n)` — it can encrypt and do ciphertext arithmetic with the public modulus alone, but has **no private key**, so it cannot decrypt anything it computes.
+
+**One-line-per-file index (files that matter)**
+
+| File                                                                           | What it owns                                                                                                                 |
+| ------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------- |
+| `app.py`                                                                       | Flask routes, `from_payload` validation, `RequestLimiter` quota, `encrypted_weighted_sum` homomorphic core, headers, logging |
+| `static/shield-client.js`                                                      | Browser keygen/encrypt/decrypt orchestration (`runEvaluation`), `derivedIndicators`, normalization, all UI/history           |
+| `static/vendor/paillier-bigint.js`                                             | Vendored Paillier: `generateRandomKeys`, `PublicKey.encrypt/addition/multiply`, `PrivateKey.decrypt`, `L`, `modPow`          |
+| `templates/index.html`                                                         | Single-page glass workspace markup consumed by `shield-client.js`                                                            |
+| `tests/`                                                                       | Backend contract tests (envelope rejection, weights, quota)                                                                  |
+| `tools/e2e-private-flow.mjs`                                                   | Real-browser assertion that only `{public_key, encrypted_values}` leaves the tab and the canonical `37.5/100` holds          |
+| `servercalc.py`, `cust.py`, `linmodel.py`, `train.py`, `generate_loan_data.py` | **Legacy** server-side-key salary demo — NOT wired into the running app; do not cite when explaining the live flow           |
+
+### Excerpt 1 — the server homomorphic core (`app.py`, `encrypted_weighted_sum`)
+
+This is the crux: the server produces the encrypted score touching **only ciphertext**.
+
+```python
+def encrypted_weighted_sum(evaluation: EncryptedEvaluation) -> paillier.EncryptedNumber:
+    """Compute only on ciphertexts; this process never has a private key."""
+    result = evaluation.public_key.encrypt(0)          # (1) Enc(0): additive identity, a *public-key* op (no secret needed)
+    for field, weight in WEIGHTS.items():              # (2) WEIGHTS = {dti:5, lti:4, util:3, gap:200}
+        result += evaluation.values[field] * weight    # (3) c_i * weight = scalar-multiply (c_i^weight mod n^2);
+                                                        #     result += that = homomorphic add (product mod n^2)
+    return result                                      # (4) one ciphertext encrypting 5*dti + 4*lti + 3*util + 200*gap
+```
+
+- **(1)** `PaillierPublicKey.encrypt(0)` seeds the accumulator with an encryption of zero. Encryption uses only the public modulus, so the server legitimately does this without any private key.
+- **(3)** In `phe`, `EncryptedNumber * int` is Paillier **scalar multiplication** (`ciphertext ** weight mod n^2`) and `EncryptedNumber + EncryptedNumber` is Paillier **addition** (`ciphertext_a * ciphertext_b mod n^2`). The Python operators hide the modular arithmetic; the identities are `Enc(a)^k = Enc(k*a)` and `Enc(a)*Enc(b) = Enc(a+b)`.
+- The reconstructed inputs come from `from_payload`, which builds each as `paillier.EncryptedNumber(public_key, ciphertext, exponent=0)` — the **`exponent=0`** is what makes the browser's raw-integer ciphertexts interoperate with Python `phe` (both sides use the `g = n+1` convention and integer, unscaled plaintexts).
+
+**Interviewer might ask — "The server calls `encrypt(0)`; doesn't that mean it can decrypt?"**
+No. `encrypt` needs only the public modulus `n`; `decrypt` needs `lambda`/`mu` derived from the secret primes `p, q`, which never leave the browser. Encrypting is public, decrypting is private — the server can build ciphertexts and combine them but cannot read any of them, including its own output.
+
+**Interviewer might ask — "Complexity / trade-off of this loop?"**
+Four iterations, each dominated by one modular exponentiation `c_i^weight_i mod n^2` — O(log weight) big-integer multiplies on ~2048-bit numbers (n^2 is twice the 1024-bit modulus). It is cheap because the model is _linear_: a weighted sum needs only additive PHE. Anything non-linear (a real ML model, comparisons, argmax) would need fully-homomorphic encryption, which is orders of magnitude slower — the deliberate design point is to pick the weakest primitive that still computes the target.
+
+### Excerpt 2 — the browser round trip (`static/shield-client.js`, inside `runEvaluation`)
+
+The private key is generated, used, and discarded here; only ciphertext and the public modulus ever leave.
+
+```javascript
+const { publicKey, privateKey } = await generateRandomKeys(1024, true); // (1) ephemeral keypair, simpleVariant -> g = n+1
+const derived = derivedIndicators(values); // (2) 5 raw figures -> 4 integer bps indicators
+const encryptedValues = Object.fromEntries(
+  Object.entries(derived).map(([field, raw]) => [
+    field,
+    publicKey.encrypt(BigInt(raw)).toString(), // (3) encrypt each indicator -> decimal ciphertext string
+  ]),
+);
+const response = await fetch("/api/v1/private-evaluations", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  signal: AbortSignal.timeout(15000),
+  body: JSON.stringify({
+    public_key: { n: publicKey.n.toString() }, // (4) ONLY the public modulus + ciphertexts cross the wire
+    encrypted_values: encryptedValues,
+  }),
+});
+const payload = await response.json().catch(() => ({}));
+// ... validate ciphertext is all-digits, divisor finite/>0, weights present ...
+const rawTotal = privateKey.decrypt(
+  BigInt(payload.encrypted_result.ciphertext),
+); // (5) decrypt weighted sum LOCALLY
+const score = Math.min(100, Math.round((Number(rawTotal) / divisor) * 10) / 10); // (6) normalize /1000, clamp 0-100
+```
+
+- **(1)** `generateRandomKeys(1024, true)` — the `true` is `simpleVariant`, which sets `g = n + 1` and `lambda = phi(n)`, `mu = lambda^-1 mod n`. This both speeds keygen and matches Python `phe`'s encoding so the two libraries interoperate. `1024` is a **deliberate demo trade-off** for in-browser responsiveness (below the 2048-bit production floor).
+- **(2)–(3)** Only the four _derived_ indicators are encrypted — never the five raw figures — so the server receives the minimum information needed to compute the score. `BigInt(raw)` because Paillier is integer-only; the indicators are pre-scaled to basis points client-side.
+- **(4)** The request body is literally `{public_key:{n}, encrypted_values:{4 ciphertexts}}` — this is the exact shape `e2e-private-flow.mjs` asserts on the wire, and the exact shape `from_payload` allow-lists (any extra/raw field -> 400).
+- **(5)–(6)** The private key never left this closure, so decryption can only happen here. The server publishes `normalization_divisor` in its response, so the final client math is transparent, not hidden.
+
+**Interviewer might ask — "Why is the private key a local `const` and not stored anywhere?"**
+It is _ephemeral by design_ — one keypair per evaluation, discarded when `runEvaluation` returns. There is no long-lived private key to persist, transmit, rotate, or leak; a page reload cannot resurrect a prior plaintext result. History in `localStorage` stores only the final numeric score and metadata, never the key or ciphertexts.
+
+**Interviewer might ask — "What stops a huge decrypted value from breaking the UI?"**
+The guard `rawTotal < 0n || rawTotal > BigInt(Number.MAX_SAFE_INTEGER)` rejects out-of-range decryptions before the `Number()` cast, so a malformed/oversized ciphertext from the server cannot silently produce a garbage score.
+
+### Excerpt 3 — the Paillier primitives the browser calls (`static/vendor/paillier-bigint.js`)
+
+The actual modular arithmetic behind "encrypt", "add", "scalar-multiply", and "decrypt".
+
+```javascript
+// PublicKey
+encrypt(m){ const r = randBetween(this.n);
+            return modPow(this.g, m, this._n2) * modPow(r, this.n, this._n2) % this._n2 } // g^m * r^n mod n^2  (r^n = randomizer)
+addition(...ciphertexts){ return ciphertexts.reduce((sum,next)=> sum*next % this._n2, _ONE) }  // Enc(a)*Enc(b) = Enc(a+b)
+multiply(c,k){ return modPow(BigInt(c), BigInt(k), this._n2) }                                  // Enc(a)^k    = Enc(k*a)
+
+// PrivateKey
+decrypt(c){ return L(modPow(c, this.lambda, this.publicKey._n2), this.publicKey.n)
+                   * this.mu % this.publicKey.n }                                               // L(c^lambda mod n^2) * mu mod n
+// where  L(a,n) = (a - 1) / n
+```
+
+- **`encrypt`** multiplies a deterministic part `g^m` by a random `r^n mod n^2`. The random `r` is why encrypting the same indicator twice yields different ciphertexts (semantic security) — yet all of them decrypt to the same `m`, because `r^n` vanishes under decryption.
+- **`addition`** is just multiplication of ciphertexts mod n^2; **`multiply`** is modular exponentiation by the public scalar. These two are exactly what `encrypted_weighted_sum` triggers server-side through Python `phe`'s `+` and `*` operators — the JS and Python libraries implement the same group so ciphertexts are portable across them.
+- **`decrypt`** applies the L-function to `c^lambda mod n^2` and multiplies by `mu`. With `simpleVariant` (`g = n+1`), `lambda = phi(n)` and `mu = lambda^-1 mod n`, this recovers `m` in one modular exponentiation.
+
+**Interviewer might ask — "Why is 1024-bit keygen not freezing the browser?"**
+`generateRandomKeys` finds primes via `isProbablyPrime`, which runs Miller-Rabin in **Web Workers** (`_isProbablyPrimeWorkerUrl` builds a Blob worker), fanning out across `hardwareConcurrency` cores. Keygen is therefore off the main thread; the UI stepper stays responsive while primes are searched.
+
+**Interviewer might ask — "Where does the security actually come from?"**
+From the decisional composite residuosity assumption: given only `c` and `n`, deciding what `c` encrypts (equivalently, whether a value is an n-th residue mod n^2) is believed infeasible without `lambda`. The randomizer `r^n` makes the scheme semantically secure, so even encryptions of known small indicators are indistinguishable to the honest-but-curious server.
