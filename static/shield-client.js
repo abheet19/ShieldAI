@@ -420,22 +420,33 @@ function openNewEvalDrawer(prefill) {
 document.querySelectorAll("[data-open-new-eval]").forEach((btn) => {
   btn.addEventListener("click", () => openNewEvalDrawer());
 });
+$("runExampleBtn").addEventListener("click", () => runSyntheticExample());
 $("closeNewEval").addEventListener("click", () => closeOverlay(newEvalDrawer));
 cancelButton.addEventListener("click", () => closeOverlay(newEvalDrawer));
+const SYNTHETIC_EXAMPLE = {
+  annual_income: 85000,
+  existing_debt: 12000,
+  credit_utilization_pct: 30,
+  employment_years: 5,
+  requested_loan_amount: 20000,
+};
 $("example-button").addEventListener("click", () => {
-  const example = {
-    annual_income: 85000,
-    existing_debt: 12000,
-    credit_utilization_pct: 30,
-    employment_years: 5,
-    requested_loan_amount: 20000,
-  };
-  Object.entries(example).forEach(([name, value]) => {
+  Object.entries(SYNTHETIC_EXAMPLE).forEach(([name, value]) => {
     fieldInput(name).value = String(value);
   });
   clearFieldErrors();
   consentCheck.focus();
 });
+
+/* One-click primary first-run flow: open the drawer, fill the synthetic
+   example, accept the demo consent, and run the real encrypted evaluation
+   straight through to the result + privacy receipt — so a reviewer reaches
+   the payoff in a single step. Manual entry stays available via the drawer. */
+function runSyntheticExample() {
+  openNewEvalDrawer(SYNTHETIC_EXAMPLE);
+  consentCheck.checked = true;
+  runEvaluation();
+}
 
 function renderBreakdown(container, components) {
   container.textContent = "";
@@ -776,8 +787,14 @@ function renderRecentList() {
     const note = document.createElement("p");
     note.className = "empty-note";
     note.textContent =
-      "No local evaluations yet. Start one from the button above.";
-    container.append(note);
+      "No local evaluations yet. Run the synthetic example to see the full encrypted flow end to end.";
+    const cta = document.createElement("button");
+    cta.type = "button";
+    cta.className = "btn btn-primary";
+    cta.innerHTML =
+      '<svg><use href="#i-shield"/></svg>Run the synthetic example';
+    cta.addEventListener("click", () => runSyntheticExample());
+    container.append(note, cta);
     return;
   }
   for (const record of history.slice(0, 6)) {
