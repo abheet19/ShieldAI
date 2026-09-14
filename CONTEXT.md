@@ -152,7 +152,7 @@ Every number shown is computed from a real encrypted round trip; nothing is mock
 
 ## CI, packaging, deployment, and rollback
 
-CI runs ESLint, Ruff, Prettier, eight backend tests, the bounded-load assertion, npm/pip dependency audits, the real browser workflow, and a production image build. Husky runs the fast lint/format/backend gate before local commits. The image embeds `GITHUB_SHA` as `SHIELDAI_SOURCE_COMMIT`; `/version` and `/health` expose it for exact-release verification. Fly is stateless with no database migration. Retain the prior verified image for rollback, then repeat the health and synthetic encrypted-flow smoke tests. (Note: the currently reachable public image reports `source_commit: unknown`; re-deploy from the reviewed commit to restore exact-release proof.)
+CI runs ESLint, Ruff, Prettier, eight backend tests, the bounded-load assertion, npm/pip dependency audits, the real browser workflow, and a production image build. Husky runs the fast lint/format/backend gate before local commits. The image embeds `GITHUB_SHA` as `SHIELDAI_SOURCE_COMMIT`; `/version` and `/health` expose it for exact-release verification. Fly is stateless with no database migration. Retain the prior verified image for rollback, then repeat the health and synthetic encrypted-flow smoke tests. Record the current public identity in dated release evidence rather than in this durable context file.
 
 ## Likely interview questions and answers
 

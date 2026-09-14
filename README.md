@@ -152,7 +152,7 @@ The redesigned glass workspace passes the full backend suite (8/8), a nineteen-g
 
 ## Deployment
 
-Deployed on **Fly.io** (scale-to-zero, so the first hit after idle cold-starts). The image can bake `GITHUB_SHA` as `SHIELDAI_SOURCE_COMMIT`; treat a release as identified only when the public `/version` commit equals the reviewed Git commit. As of 15 September 2026, that endpoint reports `source_commit: "unknown"`, so the public build is reachable and functionally testable but its exact source revision is not proven. Before any wider, non-educational launch: edge/WAF rate limiting, authentication, retained monitoring, an independent accessibility review, a 2048-bit key decision, and external cryptographic review.
+Deployed on **Fly.io** (scale-to-zero, so the first hit after idle cold-starts). The image bakes `GITHUB_SHA` as `SHIELDAI_SOURCE_COMMIT`; treat a release as identified only when the public `/version` commit equals the reviewed Git commit. Record the current endpoint value in dated release evidence rather than hard-coding a deployment snapshot in this README. Before any wider, non-educational launch: edge/WAF rate limiting, authentication, retained monitoring, an independent accessibility review, a 2048-bit key decision, and external cryptographic review.
 
 ---
 
