@@ -149,7 +149,7 @@
       <div class="screen-head">
         <div>
           <h1>Overview</h1>
-          <p>Every evaluation runs and stays in this browser. Nothing leaves except ciphertext.</p>
+          <p>Every evaluation runs and stays in this browser. Nothing leaves it except encrypted values.</p>
         </div>
         <div class="screen-head-actions">
           <button class="btn btn-primary" data-open-new-eval type="button">
@@ -208,11 +208,11 @@
             <div class="howit-steps">
               <div class="howit-step">
                 <span class="howit-num">01</span>
-                <div><b>Encrypt on this device.</b><span>Income, debt, utilization, tenure and the requested amount are encrypted with a fresh local public key before anything leaves the drawer.</span></div>
+                <div><b>Encrypt on this device.</b><span>Income, debt, utilization, tenure and the requested amount are encrypted with a fresh key on this device before anything is sent.</span></div>
               </div>
               <div class="howit-step">
                 <span class="howit-num">02</span>
-                <div><b>Compute under encryption.</b><span>The Flask evaluator adds and scales ciphertexts directly — it never sees a plaintext value, only the encrypted indicators.</span></div>
+                <div><b>Compute under encryption.</b><span>The server adds and scales the encrypted values directly — it never sees an actual number, only the encrypted inputs.</span></div>
               </div>
               <div class="howit-step">
                 <span class="howit-num">03</span>
@@ -244,7 +244,7 @@
         </div>
         <div class="panel-body">
           <div class="spark-wrap" id="sparkWrap"></div>
-          <div class="spark-caption">Index points, clamped at 100 for display — the evaluations table shows exact values.</div>
+          <div class="spark-caption">Index points, capped at 100 for display — the evaluations table shows exact values.</div>
         </div>
       </div>
     </section>
@@ -387,14 +387,14 @@
             <div class="model-row"><b>Score range</b><span>0–100, capped</span></div>
             <div class="model-row"><b>What the evaluator sees</b><span>Public modulus + 4 ciphertexts</span></div>
           </div>
-          <div class="howit-foot">The evaluator receives a public key and encrypted derived indicators only. The browser retains the private key in memory and decrypts the result locally — this model has no version history because nothing about it is hidden to reveal.</div>
+          <div class="howit-foot">The evaluator receives a public key and encrypted derived indicators only. The browser keeps the private key in memory and decrypts the result locally — this model has no version history because none of it is hidden in the first place.</div>
         </div>
       </div>
 
       <div class="panel">
         <div class="panel-head"><h3>Ecosystem</h3></div>
         <div class="panel-body">
-          <p class="panel-lede">ShieldAI shares its glass interface tokens with the rest of this build — one visual language across every project.</p>
+          <p class="panel-lede">ShieldAI shares one design system with the rest of my projects, so they all look and feel consistent.</p>
           <a class="eco-badge example-row" href="https://github.com/abheet19" target="_blank" rel="noopener noreferrer">
             <svg><use href="#i-github"/></svg>github.com/abheet19
           </a>
@@ -467,7 +467,7 @@
       </div>
       <ol class="stepper" id="procSteps">
         <li class="step-row" data-step="key"><span class="step-marker"></span><div><b>Generate a browser-only key</b><span>A fresh 1024-bit Paillier key pair, used for this evaluation only.</span></div></li>
-        <li class="step-row" data-step="send"><span class="step-marker"></span><div><b>Send ciphertexts to the evaluator</b><span>Public modulus and four encrypted indicators — never raw values.</span></div></li>
+        <li class="step-row" data-step="send"><span class="step-marker"></span><div><b>Send encrypted values to the evaluator</b><span>Just the public key and four encrypted indicators — never your raw numbers.</span></div></li>
         <li class="step-row" data-step="decrypt"><span class="step-marker"></span><div><b>Decrypt the result locally</b><span>The private key, held only in this tab, opens the final number.</span></div></li>
       </ol>
     </div>
