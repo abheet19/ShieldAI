@@ -5,10 +5,19 @@
 
 :root {
   --sidebar-w: 264px;
-  /* Display face for hero-scale headings only. No @font-face, no network
-     fetch — a serif fallback stack gives a distinct "display" register
-     without breaking the vendored glass package's offline guarantee. */
-  --font-display: ui-serif, Georgia, "Times New Roman", var(--font-ui);
+  /* Type — the design artifact (redesigns/shieldai.html) is set in Fraunces
+     (display), IBM Plex Sans (UI/body) and IBM Plex Mono (numerals, labels,
+     code). Those faces are self-hosted same-origin under static/fonts and
+     declared in static/fonts/fonts.css, so they load under the app's
+     `default-src 'self'` CSP where an external Google Fonts link would be
+     blocked. We override the vendored glass package's --font-ui / --font-mono
+     here (in the app layer, not in the shared tokens.css) so ShieldAI keeps
+     the artifact's exact stacks while every other glass project keeps its own.
+     The fallback stacks mirror the artifact character-for-character so the
+     computed font-family matches even before the webfont paints. */
+  --font-ui: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", SFMono-Regular, Consolas, monospace;
+  --font-display: "Fraunces", Georgia, "Times New Roman", serif;
   --shadow-drawer: -24px 0 60px -20px oklch(0% 0 0 / 0.45);
   --shadow-cmdk: 0 30px 70px -24px oklch(0% 0 0 / 0.45);
 }
@@ -54,6 +63,17 @@ h3 {
 }
 p {
   margin: 0;
+}
+/* Form controls do not inherit font-family from the document by default — the
+   UA sheet pins buttons/inputs to a system stack, which left the sidebar's
+   command trigger, nav items and icon buttons rendering in Arial instead of
+   the workspace's IBM Plex Sans. Match the design artifact's reset so every
+   control carries the same type as its surrounding text. */
+button,
+input,
+select,
+textarea {
+  font-family: inherit;
 }
 svg {
   display: block;

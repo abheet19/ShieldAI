@@ -158,7 +158,7 @@ try {
   const evaluationDurationMs = Date.now() - started;
   assert.match(
     await page.locator(".result-banner-score").innerText(),
-    /^37\.5\/100$/,
+    /^37\.5\s+idx$/,
   );
   assert.deepEqual(Object.keys(evaluationEnvelope).sort(), [
     "encrypted_values",
@@ -167,7 +167,7 @@ try {
   assert.equal(Object.keys(evaluationEnvelope.encrypted_values).length, 4);
   assert.equal(JSON.stringify(evaluationEnvelope).includes("85000"), false);
   passed(
-    "real browser encryption, Flask ciphertext arithmetic, and local decryption produce 37.5/100",
+    "real browser encryption, Flask ciphertext arithmetic, and local decryption produce 37.5 idx",
   );
 
   const resultScope = page.locator("#newEvalResult");

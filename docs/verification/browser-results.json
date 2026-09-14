@@ -1,33 +1,36 @@
 {
-  "at": "2026-09-10T17:46:51.789Z",
-  "environment": "local real Flask evaluator; 429 and malformed-success responses explicitly simulated",
+  "at": "2026-09-14T01:54:48.394Z",
+  "environment": "deployed HTTPS evaluator at http://127.0.0.1:5057; recovery responses explicitly simulated",
   "checks": [
     "landmarks, heading hierarchy, and every primary CTA have accessible names",
     "release identity endpoint is healthy and schema-bound",
-    "empty form is denied, focused, and marked invalid before encryption or network work",
+    "New evaluation drawer exposes every primary CTA with an accessible name",
+    "empty form is denied and focused before encryption or network work",
     "blank zero-minimum field is not coerced into zero",
     "synthetic example fills fields, preserves consent, and moves focus to consent",
     "explicit educational-demo consent is required",
     "range validation blocks cryptographic and provider work",
-    "real browser encryption, Flask ciphertext arithmetic, and local decryption produce 37.5/100",
-    "privacy receipt opens and closes from the keyboard",
+    "real browser encryption, Flask ciphertext arithmetic, and local decryption produce 37.5 idx",
+    "the completed evaluation renders a contribution breakdown and a privacy receipt",
+    "an evaluation row opens and closes its detail drawer from the keyboard",
     "theme CTA is keyboard-operable and persists across reload",
     "429 recovery clears stale results and restores the submit CTA",
     "malformed-success recovery is bounded and retryable",
+    "local history can be cleared from Settings after a confirmation dialog",
     "bounded 60-frame scroll-jank sample recorded",
     "320px mobile layout has no horizontal overflow",
     "mobile interactive targets meet the 24 CSS-pixel minimum",
-    "brand-home CTA returns to a clean, non-persistent form"
+    "brand-home CTA returns to a clean workspace"
   ],
   "errors": [],
   "metrics": {
-    "evaluationDurationMs": 164,
+    "evaluationDurationMs": 395,
     "navigation": {
-      "domContentLoadedMs": 0,
-      "loadMs": 0,
-      "transferBytes": 6324
+      "domContentLoadedMs": 35,
+      "loadMs": 53,
+      "transferBytes": 31333
     },
-    "scrollP95Ms": 18.3,
+    "scrollP95Ms": 35.1,
     "scrollLongFrames": 0
   }
 }
