@@ -1177,8 +1177,8 @@ table.eval-table {
   right: 11px;
   top: 50%;
   transform: translateY(-50%);
-  font-size: 0.7rem;
-  color: var(--ink-3);
+  font-size: 0.75rem;
+  color: var(--ink-2);
   pointer-events: none;
   font-family: var(--font-mono);
 }

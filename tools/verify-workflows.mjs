@@ -66,9 +66,13 @@ async function fillValidExample() {
 }
 
 const baseUrl = process.env.SHIELDAI_BASE_URL || "http://127.0.0.1:5055";
-const verificationEnvironment = process.env.SHIELDAI_BASE_URL
-  ? `deployed HTTPS evaluator at ${new URL(baseUrl).origin}; recovery responses explicitly simulated`
-  : "local real Flask evaluator; recovery responses explicitly simulated";
+const verificationOrigin = new URL(baseUrl);
+const isLocalOrigin = ["127.0.0.1", "localhost", "::1"].includes(
+  verificationOrigin.hostname,
+);
+const verificationEnvironment = isLocalOrigin
+  ? `local real Flask evaluator at ${verificationOrigin.origin}; recovery responses explicitly simulated`
+  : `deployed ${verificationOrigin.protocol === "https:" ? "HTTPS" : "HTTP"} evaluator at ${verificationOrigin.origin}; recovery responses explicitly simulated`;
 
 try {
   const response = await page.goto(baseUrl, { waitUntil: "networkidle" });

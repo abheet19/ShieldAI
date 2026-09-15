@@ -271,6 +271,7 @@ function anyOverlayOpen() {
 }
 function openOverlay(el) {
   lastFocused = document.activeElement;
+  el.inert = false;
   el.classList.add("is-open");
   el.setAttribute("aria-hidden", "false");
   scrimEl.classList.add("is-open");
@@ -278,6 +279,7 @@ function openOverlay(el) {
 function closeOverlay(el) {
   el.classList.remove("is-open");
   el.setAttribute("aria-hidden", "true");
+  el.inert = true;
   if (!anyOverlayOpen() && !sidebarEl.classList.contains("is-open"))
     scrimEl.classList.remove("is-open");
   if (lastFocused && typeof lastFocused.focus === "function")
@@ -287,6 +289,7 @@ function closeAllOverlays() {
   [newEvalDrawer, detailDrawer, cmdkOverlay].forEach((el) => {
     el.classList.remove("is-open");
     el.setAttribute("aria-hidden", "true");
+    el.inert = true;
   });
   closeMobileSidebar();
   scrimEl.classList.remove("is-open");

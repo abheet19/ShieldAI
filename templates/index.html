@@ -222,7 +222,7 @@
                 <div><b>Decrypt only the result.</b><span>The matching private key, held only in this tab's memory, decrypts a single number: the synthetic pressure index.</span></div>
               </div>
             </div>
-            <div class="formula-box">score = 5·debt-to-income + 4·loan-to-income + 3·utilization + 200·stability&nbsp;gap</div>
+            <div class="formula-box" tabindex="0" role="region" aria-label="Synthetic scoring formula">score = 5·debt-to-income + 4·loan-to-income + 3·utilization + 200·stability&nbsp;gap</div>
             <div class="crosses-grid">
               <div class="crosses-col">
                 <b>What crosses the network</b>
@@ -379,7 +379,7 @@
           </div>
         </div>
         <div class="panel-body">
-          <div class="formula-box formula-box--flush">score = 5·debt-to-income + 4·loan-to-income + 3·utilization + 200·stability&nbsp;gap</div>
+          <div class="formula-box formula-box--flush" tabindex="0" role="region" aria-label="Synthetic scoring formula">score = 5·debt-to-income + 4·loan-to-income + 3·utilization + 200·stability&nbsp;gap</div>
           <div class="model-grid">
             <div class="model-row"><b>Debt-to-income weight</b><span>×5</span></div>
             <div class="model-row"><b>Loan-to-income weight</b><span>×4</span></div>
@@ -418,7 +418,7 @@
 <div class="scrim" id="scrim"></div>
 
 <!-- ============ NEW EVALUATION DRAWER ============ -->
-<aside class="drawer" id="newEvalDrawer" aria-hidden="true">
+<aside class="drawer" id="newEvalDrawer" aria-hidden="true" inert>
   <div class="drawer-head">
     <div>
       <h2 id="newEvalTitle">New evaluation</h2>
@@ -487,7 +487,7 @@
 </aside>
 
 <!-- ============ EVALUATION DETAIL DRAWER ============ -->
-<aside class="drawer drawer-wide" id="detailDrawer" aria-hidden="true">
+<aside class="drawer drawer-wide" id="detailDrawer" aria-hidden="true" inert>
   <div class="drawer-head">
     <div>
       <h2 id="detailId">EVL-000001</h2>
@@ -535,7 +535,7 @@
 </aside>
 
 <!-- ============ COMMAND PALETTE ============ -->
-<div class="cmdk-overlay" id="cmdkOverlay" aria-hidden="true">
+<div class="cmdk-overlay" id="cmdkOverlay" aria-hidden="true" inert>
   <div class="cmdk-panel" role="dialog" aria-modal="true" aria-label="Command palette">
     <div class="cmdk-input-row">
       <svg><use href="#i-search"/></svg>
