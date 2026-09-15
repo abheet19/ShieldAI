@@ -28,6 +28,8 @@ A working demonstration of **Paillier homomorphic encryption** — the browser e
 
 **▶ [Watch the full-quality 60fps reel](docs/media/shieldai-reel.mp4)** &nbsp;·&nbsp; **[Try it live](https://shieldai-abheet19.fly.dev)**
 
+<sub><i>Media baseline:</i> captured 14 September 2026 at <code>8b0e140</code>. Later verified phone-layout, accessibility, and deterministic-payload fixes are not shown in this recording.</sub>
+
 </div>
 
 ---
