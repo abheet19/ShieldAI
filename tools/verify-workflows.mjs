@@ -168,8 +168,27 @@ try {
     "encrypted_values",
     "public_key",
   ]);
-  assert.equal(Object.keys(evaluationEnvelope.encrypted_values).length, 4);
-  assert.equal(JSON.stringify(evaluationEnvelope).includes("85000"), false);
+  assert.deepEqual(Object.keys(evaluationEnvelope.encrypted_values).sort(), [
+    "debt_to_income_bps",
+    "loan_to_income_bps",
+    "stability_gap_months",
+    "utilization_bps",
+  ]);
+  const rawOrDerivedValues = new Set([
+    "85000",
+    "12000",
+    "30",
+    "5",
+    "20000",
+    "1412",
+    "2353",
+    "3000",
+    "60",
+  ]);
+  for (const ciphertext of Object.values(evaluationEnvelope.encrypted_values)) {
+    assert.match(ciphertext, /^\d{200,}$/);
+    assert.equal(rawOrDerivedValues.has(ciphertext), false);
+  }
   passed(
     "real browser encryption, Flask ciphertext arithmetic, and local decryption produce 37.5 idx",
   );
